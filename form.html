@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment</title>
+    <style>
+        body{
+            background-image: url("background.avif");
+        }
+        div{
+            background-color: white;
+            border: 2px solid orange;
+            width: 750px;
+            margin: 0 auto;
+            width: 50%;
+        }
+        h1, p{
+            text-align: center;
+        }
+        form{
+            padding: 10px;
+            margin: 5px;
+        }
+        input{
+            margin: 5px;
+        }
+        label{
+            /* margin: 10px; */
+            font-size: 20px;
+        }
+        #name, #email, #password{
+            width: 575px;
+            height: 30px;
+        }
+        #date{
+            width: 300px;
+            height: 30px;
+        }
+        #time{
+            width: 259px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1 style="color: orange;">Book a Call</h1>
+        <p>Book a call slot and our representative will call you within 1 hr of selected time</p>
+        <hr>
+        <form action="#" onsubmit="display(event)">
+            <label for="name" >Name</label><br>
+            <input type="text" id="name" name="name" required><br>
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email" required><br>
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" required><br>
+            <label for="time">Time for Call</label><br>
+            <input type="date" id="date" name="date">
+            <input type="time" id="time" name="time"><br>
+            <button type="submit" style="width: 590px;background-color: orange; border: none; height: 30px;font-size: 20px; color: white;">GET A CALL</button>
+        </form>
+    </div>
+    
+    <script>
+        function display(event){
+            event.preventDefault();
+            var form = event.target;
+            var elements = form.elements;
+
+            for(let i=0;i<elements.length;i++){
+                var element = elements[i];
+                console.log(element.name + ''+element.value);
+            }
+        }
+    </script>
+</body>
+</html>
