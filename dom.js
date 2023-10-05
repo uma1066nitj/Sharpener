@@ -9,6 +9,9 @@ title.style.fontWeight = "bold";
 title.style.color = "green";
 
 const items = document.getElementsByClassName("list-group-item");
-console.log(items);
-items.style.fontWeight = "bold";
+// console.log(items.style);
+items[0].style.fontWeight = "bold";
+items[1].style.fontWeight = "bold";
+items[2].style.fontWeight = "bold";
+items[3].style.fontWeight = "bold";
 items[2].style.backgroundColor = "green";
