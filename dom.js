@@ -104,21 +104,21 @@ title.style.color = "green";
 // newDiv.style.fontSize = "30px";
 
 //add hello world before item 1
-var newDiv = document.createElement("div");
+// var newDiv = document.createElement("div");
 //add class
-newDiv.className = "hello";
+// newDiv.className = "hello";
 //add id
-newDiv.id = "hello1";
+// newDiv.id = "hello1";
 //add attributes
-newDiv.setAttribute("title", "Hello Div");
+// newDiv.setAttribute("title", "Hello Div");
 
 //create a text node
-var newDivText = document.createTextNode("Hello World");
+// var newDivText = document.createTextNode("Hello World");
 
 //add text to div
-newDiv.appendChild(newDivText);
+// newDiv.appendChild(newDivText);
 
-var contianer = document.querySelector(".list-group");
-const item1 = document.querySelector("#items").firstElementChild;
+// var contianer = document.querySelector(".list-group");
+// const item1 = document.querySelector("#items").firstElementChild;
 // console.log(contianer);
-contianer.insertBefore(newDiv, item1);
+// contianer.insertBefore(newDiv, item1);
