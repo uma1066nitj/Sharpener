@@ -21,12 +21,14 @@ function onSubmit(e) {
     setTimeout(() => msg.remove(), 3000);
   } else {
     const li = document.createElement("li");
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete";
+    deleteBtn.appendChild(document.createTextNode("Delete"));
     li.appendChild(
       document.createTextNode(
         `Name : ${nameInput.value}, Email : ${emailInput.value}, Contact: ${contactInput.value}`
       )
     );
-    userList.appendChild(li);
     class User {
       constructor(name, email, contact) {
         this.name = name;
@@ -35,13 +37,28 @@ function onSubmit(e) {
       }
     }
     var user = new User(nameInput.value, emailInput.value, contactInput.value);
-
-    localStorage.setItem(user.email, JSON.stringify(user));
-
-    nameInput.value = "";
-    emailInput.value = "";
-    contactInput.value = "";
+    li.appendChild(deleteBtn);
+    userList.appendChild(li);
   }
+  localStorage.setItem(user.email, JSON.stringify(user));
+
+  nameInput.value = "";
+  emailInput.value = "";
+  contactInput.value = "";
+
+  //delete elements After adding
+  var items = userList.getElementsByTagName("li");
+  Array.from(items).forEach(function (item) {
+    const btn = item.querySelector(".delete");
+    btn.addEventListener("click", removeItem);
+    function removeItem(e) {
+      if (e.target.className == "delete") {
+        var item = e.target.parentElement;
+        userList.removeChild(item);
+        localStorage.removeItem(user.email);
+      }
+    }
+  });
 }
 // let users = { userList };
 // console.log(users);
