@@ -242,7 +242,7 @@ function editItem(user) {
   nameInput.value = user.name;
   emailInput.value = user.email;
   contactInput.value = user.contact;
-
+  removeItem(user._id);
   myForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
