@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <form id="my-form">
+            <div class="head">
+                <h2
+                    style="border: 2px solid black; border-radius: 100px; text-align: center; background-color: whitesmoke; color: #0B6F3A;font-weight: bold;">
+                    Seller Page<span> : Get your things listed here</span></h2>
+            </div>
+            <h4 style="font-style: italic;">Please Enter the Details here before sending to Anywhere</h4>
+            <div>
+                <label for="expense" class="form-label" style="color: #0B6F3A; font-weight: bold;">Expense</label>
+                <input type="text" id="expense" class="form-control"
+                    style="border: 2px solid black; border-radius: 10px; width: auto;">
+            </div>
+            <div class="mb-3">
+                <label for="product-name" class="form-label" style="color: #0B6F3A; font-weight: bold;">Product
+                    Name</label>
+                <input type="text" id="product-name" class="form-control"
+                    style="border: 2px solid black; border-radius: 10px; width: auto;">
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label" style="color: #0B6F3A; font-weight: bold;">Choose a
+                    Category</label>
+                <select name="category" id="category" class="form-control"
+                    style="border: 2px solid black; border-radius: 10px; width: auto; text-align: center;">
+                    <option value="electronics" id="electronics">Electronics</option>
+                    <option value="food" id="food">Food Items</option>
+                    <option value="skin" id="skin">Skin Care Items</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" type="submit" style="text-align: center;">Add Item</button>
+        </form>
+        <h3>Products</h3>
+        <div id="item-lists">
+            <div>
+                <h4>Electronics Items</h4>
+                <ul id="electronics-list" class="list-group electronics">
+                    
+                </ul>
+            </div>
+            <div>
+                <h4>Food Items</h4>
+                <ul id="food-list" class="list-group food">
+                    
+                </ul>
+            </div>
+            <div>
+                <h4>Skin Care Items</h4>
+                <ul id="skin-care-list" class="list-group skin">
+                    
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="seller.js"></script>
+</body>
+
+</html>
