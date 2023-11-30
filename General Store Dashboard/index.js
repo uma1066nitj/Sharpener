@@ -68,7 +68,7 @@ function createButton(text, className) {
 function addItemToCrudCrud(item) {
   axios
     .post(
-      "https://crudcrud.com/api/ccf0a65b776f406abe01f25fbaec7c89/itemList",
+      "https://crudcrud.com/api/d1fb14dc75de4c39934ec921b24e436a/itemList",
       item
     )
     .then(() => {
@@ -78,7 +78,7 @@ function addItemToCrudCrud(item) {
 }
 function getDataFromCrudCrud() {
   return axios
-    .get("https://crudcrud.com/api/ccf0a65b776f406abe01f25fbaec7c89/itemList")
+    .get("https://crudcrud.com/api/d1fb14dc75de4c39934ec921b24e436a/itemList")
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -115,7 +115,7 @@ async function buyThing(quantityToBuy, SelectedItem) {
   });
   await axios
     .patch(
-      `https://crudcrud.com/api/ccf0a65b776f406abe01f25fbaec7c89/itemList/${SelectedItem._id}`,
+      `https://crudcrud.com/api/d1fb14dc75de4c39934ec921b24e436a/itemList/${SelectedItem._id}`,
       { quantity: updatedQuantity }
     )
     .then(() => {
