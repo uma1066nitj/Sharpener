@@ -10,7 +10,7 @@ window.addEventListener("DOMContentLoaded", () => {
   showItemFromCrudCrud();
 });
 
-function onSubmit(e) {
+async function onSubmit(e) {
   e.preventDefault();
 
   if (
@@ -25,16 +25,19 @@ function onSubmit(e) {
       product: productInput.value,
       category: categoryInput.value,
     };
-    // const li = createItemElement(item);
-    // if (li.className === "electronics") {
-    //   itemListOfElectronic.appendChild(li);
-    //   // console.log("hhhhhhhhhhhhhhhhhhhhhhh")
-    // } else if (li.className === "food") {
-    //   itemListOfFood.appendChild(li);
-    // } else {
-    //   itemListOfSkincare.appendChild(li);
-    // }
-    addItemToCrudCrud(item);
+
+    // addItemToCrudCrud(item);
+    const addedItem = await addItemToCrudCrud(item);
+
+    if (addedItem) {
+      const li = createItemElement(addedItem);
+      const list = itemListsContainer.querySelector(
+        `.${addedItem.category.toLowerCase()}`
+      );
+      if (list) {
+        list.appendChild(li);
+      }
+    }
 
     expenseInput.value = "";
     productInput.value = "";
@@ -62,26 +65,75 @@ function createButton(text, className) {
   btn.textContent = text;
   return btn;
 }
-function addItemToCrudCrud(item) {
-  axios
-    .post(
-      "https://crudcrud.com/api/dd61109a517446519d858b405ae84301/itemList",
+// function addItemToCrudCrud(item) {
+//   axios
+//     .post(
+//       "https://crudcrud.com/api/428e21483a314774a90fcb59dda1980c/itemList",
+//       item
+//     )
+//     .then(() => {
+//       showItemFromCrudCrud();
+//     })
+//     .catch((err) => console.log(err));
+// }
+async function addItemToCrudCrud(item) {
+  try {
+    const response = await axios.post(
+      "https://crudcrud.com/api/366dc6e2ccff41d8a47d1c5f0cd5682c/itemList",
       item
-    )
-    .then(() => {
-      showItemFromCrudCrud();
-    })
-    .catch((err) => console.log(err));
+    );
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
-function getDataFromCrudCrud() {
-  return axios
-    .get("https://crudcrud.com/api/dd61109a517446519d858b405ae84301/itemList")
-    .then((res) => res.data)
-    .catch((err) => {
-      console.log(err);
-      return [];
-    });
+
+// function getDataFromCrudCrud() {
+//   return axios
+//     .get("https://crudcrud.com/api/428e21483a314774a90fcb59dda1980c/itemList")
+//     .then((res) => res.data)
+//     .catch((err) => {
+//       console.log(err);
+//       return [];
+//     });
+// }
+//Async - Await
+async function getDataFromCrudCrud() {
+  try {
+    const res = await axios.get(
+      "https://crudcrud.com/api/366dc6e2ccff41d8a47d1c5f0cd5682c/itemList"
+    );
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
 }
+
+// async function showItemFromCrudCrud() {
+//   try {
+//     const items = await getDataFromCrudCrud();
+
+//     itemListsContainer
+//       .querySelectorAll("ul")
+//       .forEach((ul) => (ul.innerHTML = ""));
+
+//     items.forEach((item) => {
+//       const li = createItemElement(item);
+//       const list = itemListsContainer.querySelector(
+//         `.${item.category.toLowerCase()}`
+//       );
+//       if (list) {
+//         list.appendChild(li);
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error while showing items:", error);
+//   }
+// }
+
+//Async Await
 async function showItemFromCrudCrud() {
   try {
     const items = await getDataFromCrudCrud();
@@ -103,13 +155,25 @@ async function showItemFromCrudCrud() {
     console.error("Error while showing items:", error);
   }
 }
-function removeItem(userId) {
-  axios
-    .delete(
-      `https://crudcrud.com/api/dd61109a517446519d858b405ae84301/itemList/${userId}`
-    )
-    .then(() => {
-      showItemFromCrudCrud();
-    })
-    .catch((err) => console.log(err));
+// function removeItem(userId) {
+//   axios
+//     .delete(
+//       `https://crudcrud.com/api/428e21483a314774a90fcb59dda1980c/itemList/${userId}`
+//     )
+//     .then(() => {
+//       showItemFromCrudCrud();
+//     })
+//     .catch((err) => console.log(err));
+// }
+
+// Async-Await
+async function removeItem(userId) {
+  try {
+    await axios.delete(
+      `https://crudcrud.com/api/366dc6e2ccff41d8a47d1c5f0cd5682c/itemList/${userId}`
+    );
+    await showItemFromCrudCrud();
+  } catch (err) {
+    console.log(err);
+  }
 }
