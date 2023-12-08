@@ -1,0 +1,16 @@
+{
+  "name": "backenddemo",
+  "version": "1.0.0",
+  "description": "Backend Pratice ",
+  "main": "first-app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon first-app.js",
+    "start-server": "nodemon first-app.js"
+  },
+  "author": "Uma Shankar",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
