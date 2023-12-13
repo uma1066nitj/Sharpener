@@ -33,22 +33,16 @@ const personName = "Uma Shankar";
 const express = require("express");
 const app = express();
 const bodyPraser = require("body-parser");
+const routerAdmin = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
 app.use(bodyPraser.urlencoded({ extended: false }));
 
-app.use("/add-product", (req, res, next) => {
-  res.send(
-    "<form action='/product' method='POST'><input type='text' name='title' placeholder='Enter the name'><input type='text' name='size' placeholder='Enter the Size'><button type='submit'>Submit</button></form >"
-  );
-});
+app.use("/admin", routerAdmin);
+app.use(shopRoutes);
 
-app.post("/product", (req, res, next) => {
-  console.log(req.body);
-  res.redirect("/");
-});
-
-app.use("/", (req, res, next) => {
-  res.send("<h1>Hello from Express Js</h1>");
+app.use((req, res, next) => {
+  res.status(404).send("<h1>Page Not Found</h1>");
 });
 
 app.listen(port, hostname, () => {
