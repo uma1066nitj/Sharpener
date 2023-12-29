@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+</head>
+<body>
+    <form action="/send-message" method="post">
+        <label for="'message">Message : </label>
+        <input type="text" id="message" name="message" required>
+        <input type="hidden" id="username" name="username" value="">
+        <button type="submit">Send Message</button>
+    </form>
+    <div id="messgae"></div>
+
+    <script>
+        const username = window.localStorage.getItem('username');
+        document.getElementById('username').value = username;
+
+        //fetch message 
+        function fetchMessage(){
+            fetch('/send-messgae')
+            .then(response => response.text())
+            .then(function(message){
+                document.getElementById('message').innerHTML = message;
+            })
+        }
+         //submit message form
+        document.querySelectorAll('form').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+ 
+            if(message !== ''){
+                fetch('/send-message', {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'username= '+ username + '&message' + message,
+                }).then(function(){
+                    messageInput.value='';
+                });
+            }
+        });
+        setInterval(fetchMessage, 1000);
+    </script>
+</body>
+</html>
