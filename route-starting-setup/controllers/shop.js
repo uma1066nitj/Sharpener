@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Cart = require("../models/cart");
 
 exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
@@ -10,9 +11,16 @@ exports.getProducts = (req, res, next) => {
   });
 };
 
-exports.getProduct = (res, req, next) => {
+exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findbyId(prodId, (Product) => {
+  Product.findbyId(prodId, (product) => {
+    if (!product) {
+      // Handle case when product is not found
+      return res.status(404).render("errors/404", {
+        pageTitle: "Product Not Found",
+        path: "",
+      });
+    }
     res.render("shop/product-detail", {
       product: product,
       pageTitle: product.title,
@@ -35,6 +43,14 @@ exports.getCart = (req, res, next) => {
     path: "/cart",
     pageTitle: "Your Cart",
   });
+};
+
+exports.postCart = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.findbyId(prodId, (product) => {
+    Cart.addProduct(prodId, product.price);
+  });
+  res.redirect("/cart");
 };
 
 exports.getOrders = (req, res, next) => {

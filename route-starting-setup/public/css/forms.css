@@ -21,3 +21,18 @@
 .form-control textarea:focus {
   outline-color: #00695c;
 }
+/* form {
+  display: inline; */
+
+
+.btn {
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  font: inherit;
+  border: 1px solid #00695c;
+  color: #00695c;
+  background: white;
+  border-radius: 3px;
+  cursor: pointer;
+}
