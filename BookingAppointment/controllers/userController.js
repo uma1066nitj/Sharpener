@@ -1,12 +1,4 @@
-const express = require("express");
-const bodyParser = require("body-parser");
 const mysql = require("mysql2");
-const cors = require("cors");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
 
 const pool = mysql.createPool({
   host: "localhost",
@@ -15,43 +7,38 @@ const pool = mysql.createPool({
   database: "appointment",
 });
 
-app.use(bodyParser.json());
-app.post("/api/users", (req, res, next) => {
+exports.addUser = (req, res) => {
   const { name, email, contact } = req.body;
   pool.query(
-    "insert into user (name, email,contact) values (?,?,?)",
+    "INSERT INTO user (name, email, contact) VALUES (?, ?, ?)",
     [name, email, contact],
     (err, result) => {
       if (err) {
         console.log(err);
-        return;
+        return res.status(500).json({ message: "Internal Server Error" });
       }
-      res.json({ message: "user added successfully" });
+      res.json({ message: "User added successfully" });
     }
   );
-});
+};
 
-app.delete("/api/users/:userId", (req, res) => {
+exports.deleteUser = (req, res) => {
   const userId = req.params.userId;
   pool.query("DELETE FROM user WHERE id = ?", [userId], (err, results) => {
     if (err) {
       console.error("Error deleting user: ", err);
-      return;
+      return res.status(500).json({ message: "Internal Server Error" });
     }
     res.json({ message: "User deleted successfully" });
   });
-});
+};
 
-app.get("/api/users", (req, res) => {
+exports.getAllUsers = (req, res) => {
   pool.query("SELECT * FROM user", (err, results) => {
     if (err) {
       console.error("Error fetching users: ", err);
-      return;
+      return res.status(500).json({ message: "Internal Server Error" });
     }
     res.json(results);
   });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+};
