@@ -7,7 +7,6 @@ const axios = require("axios");
 
 myForm.addEventListener("submit", onSubmit);
 window.addEventListener("DOMContentLoaded", () => {
-  // showUsersFromLocalStorage();
   showExpensesFromServer();
 });
 
@@ -44,8 +43,8 @@ function onSubmit(e) {
     li.appendChild(deleteBtn);
     li.appendChild(editBtn);
 
-    deleteBtn.addEventListener("click", () => removeItem(user.id));
-    // editBtn.addEventListener("click", () => editItem(user));
+    deleteBtn.addEventListener("click", () => removeItem(expense.id));
+    editBtn.addEventListener("click", () => editItem(expense.id));
 
     return li;
   }
@@ -99,11 +98,54 @@ function onSubmit(e) {
       .catch((err) => console.log(err));
   }
 
-  // function editItem(expense, listItem) {
-  //   expenseList.removeChild(listItem);
-  //   localStorage.removeItem(expense.storageKey);
-  //   moneyInput.value = expense.money;
-  //   serviceInput.value = expense.service;
-  //   serviceCategoryInput = expense.serviceCategory;
-  // }
+  function editItem(userId) {
+    axios
+      .get(`http://localhost:3000/api/expenses/${userId}`)
+      .then((response) => {
+        const expense = response.data;
+        moneyInput.value = expense.money;
+        serviceInput.value = expense.service;
+        serviceCategoryInput.value = expense.serviceCategory;
+
+        myForm.removeEventListener("submit", onSubmit);
+
+        myForm.addEventListener("submit", (e) => {
+          if (
+            moneyInput.value.trim() === "" ||
+            serviceInput.value.trim() === ""
+          ) {
+            alert("Please complete all the required fields");
+          } else {
+            const updatedExpenses = {
+              id: userId,
+              money: moneyInput.value,
+              service: serviceInput.value,
+              serviceCategory: serviceCategoryInput.value,
+            };
+
+            axios
+              .post(
+                `http://localhost:3000/api/expenses/${userId}`,
+                updatedExpenses
+              )
+              .then(() => {
+                showExpensesFromServer();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+
+            moneyInput.value = "";
+            serviceInput.value = "";
+            serviceCategoryInput.selectedIndex = 0;
+
+            myForm.removeEventListener("submit", onSubmit);
+            myForm.addEventListener("submit", onsubmit);
+          }
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 }

@@ -42,3 +42,18 @@ exports.getExpense = (req, res, next) => {
     res.json(results);
   });
 };
+
+exports.editExpense = (req, res, next) => {
+  const [money, service, service_category] = req.body;
+  const userId = req.params.userId;
+  pool.query(
+    "UPDATE expense SET money=?,service=?,service_category=? WHERE id=?",
+    [money, service, service_category, userId],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.json({ message: "Epenses successfully updated" });
+    }
+  );
+};
