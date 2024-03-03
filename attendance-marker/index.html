@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Attendance</title>
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="index.css">
+
+</head>
+<body>
+    <form>
+        <div class="head">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date">
+            <button class="search" type="button" onclick="showAttendance()">Search</button>
+            <button class="report" type="submit">Fetch Attendance Report</button>
+        </div>
+        <div class="main" id="studentList">
+            <h3>List of Students in Class</h3>
+            <ol>
+                <li>
+                    <label for="shiv_present">Shiv</label>
+                    <input type="radio" id="shiv_present" name="shiv" value="present">
+                    <label for="shiv_present">Present</label>
+                    <input type="radio" id="shiv_absent" name="shiv" value="absent">
+                    <label for="shiv_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="shankar_present">Shankar</label>
+                    <input type="radio" id="shankar_present" name="shankar" value="present">
+                    <label for="shankar_present">Present</label>
+                    <input type="radio" id="shankar_absent" name="shankar" value="absent">
+                    <label for="shankar_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="uma_present">Uma</label>
+                    <input type="radio" id="uma_present" name="uma" value="present">
+                    <label for="uma_present">Present</label>
+                    <input type="radio" id="uma_absent" name="uma" value="absent">
+                    <label for="uma_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="abhishek_present">Abhishek</label>
+                    <input type="radio" id="abhishek_present" name="abhishek" value="present">
+                    <label for="abhishek_present">Present</label>
+                    <input type="radio" id="abhishek_absent" name="abhishek" value="absent">
+                    <label for="abhishek_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="riya_present">Riya</label>
+                    <input type="radio" id="riya_present" name="riya" value="present">
+                    <label for="riya_present">Present</label>
+                    <input type="radio" id="riya_absent" name="riya" value="absent">
+                    <label for="riya_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="khusboo_present">Khsuboo</label>
+                    <input type="radio" id="khusboo_present" name="shiv" value="present">
+                    <label for="khusboo_present">Present</label>
+                    <input type="radio" id="khusboo_absent" name="shiv" value="absent">
+                    <label for="khusboo_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="kunal_present">Kunal</label>
+                    <input type="radio" id="kunal_present" name="kunal" value="present">
+                    <label for="kunal_present">Present</label>
+                    <input type="radio" id="kunal_absent" name="kunal" value="absent">
+                    <label for="kunal_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="sangeeta_present">Sangeeta</label>
+                    <input type="radio" id="sangeeta_present" name="sangeeta" value="present">
+                    <label for="sangeeta_present">Present</label>
+                    <input type="radio" id="sangeeta_absent" name="sangeeta" value="absent">
+                    <label for="sangeeta_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="neha_present">Neha</label>
+                    <input type="radio" id="neha_present" name="neha" value="present">
+                    <label for="neha_present">Present</label>
+                    <input type="radio" id="neha_absent" name="neha" value="absent">
+                    <label for="neha_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="rambha_present">Rambha</label>
+                    <input type="radio" id="rambha_present" name="rambha" value="present">
+                    <label for="rambha_present">Present</label>
+                    <input type="radio" id="rambha_absent" name="rambha" value="absent">
+                    <label for="rambha_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="sameer_present">Sameer</label>
+                    <input type="radio" id="sameer_present" name="sameer" value="present">
+                    <label for="sameer_present">Present</label>
+                    <input type="radio" id="sameer_absent" name="sameer" value="absent">
+                    <label for="sameer_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="jiny_present">Jiny</label>
+                    <input type="radio" id="jiny_present" name="jiny" value="present">
+                    <label for="jiny_present">Present</label>
+                    <input type="radio" id="jiny_absent" name="jiny" value="absent">
+                    <label for="jiny_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="sarath_present">Sarath</label>
+                    <input type="radio" id="sarath_present" name="sarath" value="present">
+                    <label for="sarath_present">Present</label>
+                    <input type="radio" id="sarath_absent" name="sarath" value="absent">
+                    <label for="sarath_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="sonal_present">Sonal</label>
+                    <input type="radio" id="sonal_present" name="sonal" value="present">
+                    <label for="sonal_present">Present</label>
+                    <input type="radio" id="sonal_absent" name="sonal" value="absent">
+                    <label for="sonal_absent">Absent</label>
+                </li>
+                <li>
+                    <label for="jagdeep_present">Jagdeep</label>
+                    <input type="radio" id="jagdeep_present" name="jagdeep" value="present">
+                    <label for="jagdeep_present">Present</label>
+                    <input type="radio" id="jagdeep_absent" name="jagdeep" value="absent">
+                    <label for="jagdeep_absent">Absent</label>
+                </li>
+            </ol>
+        </div>
+        <div class="footer">
+            <button type="submit">Mark Attendance</button>
+        </div>
+    </form>
+    <script>
+        function showAttendance() {
+            var mainDiv = document.getElementById("studentList");
+            mainDiv.style.display = "block"; // Show the list
+        }
+    </script>
+</body>
+</html>
