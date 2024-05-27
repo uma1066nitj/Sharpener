@@ -1,0 +1,189 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.table-list,
+.table-container,
+.form-container {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.table-list {
+    width: 200px;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+}
+
+.table-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.form-container {
+    width: 25%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.create-table-btn,
+.add-field-btn,
+.close-form-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.create-table-btn:hover,
+.add-field-btn:hover,
+.close-form-btn:hover {
+    background-color: #0056b3;
+}
+
+.close-form-btn {
+    align-self: flex-end;
+    background-color: transparent;
+    color: #ff0000;
+    font-size: 15px;
+}
+
+.create-form {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+}
+
+.field {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.field input,
+.field select {
+    width: 48%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.table-btn-container button {
+    width: 70%;
+    margin: 5px 0;
+}
+
+.insert-data-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.insert-data-btn:hover {
+    background-color: #218838;
+}
+
+.table-btn-container {
+    margin-bottom: 10px;
+}
+
+.insert-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.insert-form .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.insert-form label {
+    margin-bottom: 5px;
+}
+
+.insert-form input {
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.insert-form button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+.insert-form button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+
+tr:hover {
+    background-color: #32bd9a;
+}
