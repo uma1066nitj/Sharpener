@@ -4,31 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
         content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>Login</title>
     <style>
         body {
             text-align: center;
             /* background-color: skyblue; */
             /* background: url('./img1.jpg'); */
             background-size: cover;
+            font-size: 15px;
         }
-
+    
         .submission-form {
             max-width: 300px;
             margin: 2rem auto;
             border: 2px solid greenyellow;
             padding: 2rem;
         }
-
+    
         label {
             display: block;
             text-align: left;
             font-size: 20px;
         }
-
+    
         input {
             width: 80%;
             color: green;
@@ -36,12 +37,12 @@
             border-radius: 10px;
             font-size: 15px;
         }
-
-        button {
+    
+        .submission-form button {
             width: 40%;
             border-radius: 10px;
         }
-
+    
         button:hover {
             background: #E74C3C;
         }
@@ -49,19 +50,20 @@
 </head>
 
 <body>
-    <h2>NEW USER</h2>
-    <form class="submission-form" onsubmit="signup(event)">
-        <label for="name">Enter Name</label>
-        <input type="text" name="name" required><br>
+    <h2>LOGIN</h2>
+    <form class="submission-form" onsubmit="login(event)">
         <label for="email">Enter Email</label>
-        <input type="email" name="email" required><br>
+        <input type="email" name="email" placeholder="enter your email" required />
         <label for="password">Enter Password</label>
-        <input type="password" name="password" required><br>
-        <button>Signup</button>
+        <input type="password" name="password" placeholder="enter your password" required />
+        <button>Login</button>
+
     </form>
-    <a href="./login.html" id="link">Existing User - Login</a>
+    <button onclick="forgotpassword()"> Forgot password</button><br><br><br>
+
+    <a href="./signup.html" id="id1">New User - Sign up</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
-    <script src="./signup.js"></script>
+    <script src="./login.js"></script>
 </body>
 
 </html>
