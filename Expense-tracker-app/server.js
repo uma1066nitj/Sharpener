@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const port = 3000;
@@ -16,7 +17,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "expense",
+  database: "expensetracker",
 });
 
 db.connect((err) => {
@@ -34,7 +35,9 @@ db.query(
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
 `,
   (err, result) => {
@@ -52,7 +55,7 @@ app.post("/signup", (req, res) => {
 
   // Check if the user already exists
   const checkUserQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkUserQuery, [email], (err, results) => {
+  db.query(checkUserQuery, [email], async (err, results) => {
     if (err) {
       console.error("Error checking user:", err);
       res.status(500).send("Error checking user");
@@ -64,10 +67,13 @@ app.post("/signup", (req, res) => {
       return;
     }
 
+    // Hash the password before inserting into the database
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Insert new user into the database
     const insertUserQuery =
       "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-    db.query(insertUserQuery, [name, email, password], (err, result) => {
+    db.query(insertUserQuery, [name, email, hashedPassword], (err, result) => {
       if (err) {
         if (err.code === "ER_DUP_ENTRY") {
           res.status(409).send({ message: "User already exists" });
@@ -86,7 +92,7 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   const checkUserQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkUserQuery, [email], (err, results) => {
+  db.query(checkUserQuery, [email], async (err, results) => {
     if (err) {
       console.error("Error checking user:", err);
       res.status(500).send("Error checking user");
@@ -98,7 +104,13 @@ app.post("/login", (req, res) => {
     }
 
     const user = results[0];
-    if (password !== user.password) {
+    // if (password !== user.password) {
+    //   res.status(401).send({ message: "User not authorized" });
+    //   return;
+    // }
+    // Compare the provided password with the stored hashed password
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
       res.status(401).send({ message: "User not authorized" });
       return;
     }
