@@ -82,6 +82,31 @@ app.post("/signup", (req, res) => {
   });
 });
 
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const checkUserQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(checkUserQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Error checking user:", err);
+      res.status(500).send("Error checking user");
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+
+    const user = results[0];
+    if (password !== user.password) {
+      res.status(401).send({ message: "User not authorized" });
+      return;
+    }
+
+    res.send({ message: "User login successful" });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
