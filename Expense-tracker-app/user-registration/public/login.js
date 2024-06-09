@@ -16,6 +16,7 @@ function login(event) {
       alert(response.data.message);
       emailInput.value = "";
       passwordInput.value = "";
+      window.location.href = "expense.html";
     })
     .catch((error) => {
       if (error.response) {

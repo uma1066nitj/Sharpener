@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .expense-form {
+            max-width: 300px;
+            margin: 2rem auto;
+            border: 2px solid greenyellow;
+            padding: 2rem;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 20px;
+        }
+
+        input,
+        select {
+            width: 80%;
+            margin: 5px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .expense-form button {
+            width: 40%;
+            border-radius: 10px;
+        }
+
+        button:hover {
+            background: #E74C3C;
+        }
+        .expenses-list {
+            max-width: 300px;
+            margin: 2rem auto;
+            border: 2px solid greenyellow;
+            padding: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Daily Expense Entry</h2>
+    <form class="expense-form" onsubmit="addExpense(event)">
+        <label for="amount">Amount Spent</label>
+        <input type="number" name="amount" placeholder="Enter amount" required />
+        <label for="description">Description</label>
+        <input type="text" name="description" placeholder="Enter description" required />
+        <label for="category">Category</label>
+        <select name="category" required>
+            <option value="Food">Food</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Salary">Salary</option>
+            <option value="Other">Other</option>
+        </select>
+        <button type="submit">Add Expense</button>
+        <div class="expenses-list" id="expenses-list">
+            <h2>Your Expenses</h2>
+            <ul id="expenses">
+                <!-- Expenses will be appended here -->
+            </ul>
+        </div>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script src="./expense.js"></script>

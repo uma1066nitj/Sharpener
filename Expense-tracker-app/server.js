@@ -48,6 +48,26 @@ db.query(
     console.log('Table "users" exists or was created');
   }
 );
+// Create the 'expensetable' table if it doesn't exist
+db.query(
+  `
+    CREATE TABLE IF NOT EXISTS expensetable (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        amount DECIMAL(10, 2) NOT NULL,
+        description TEXT NOT NULL,
+        category VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+`,
+  (err, result) => {
+    if (err) {
+      console.error("Error creating table:", err);
+      return;
+    }
+    console.log('Table "expense table" exists or was created');
+  }
+);
 
 // Handle form submission
 app.post("/signup", (req, res) => {
@@ -104,11 +124,7 @@ app.post("/login", (req, res) => {
     }
 
     const user = results[0];
-    // if (password !== user.password) {
-    //   res.status(401).send({ message: "User not authorized" });
-    //   return;
-    // }
-    // Compare the provided password with the stored hashed password
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       res.status(401).send({ message: "User not authorized" });
@@ -116,6 +132,52 @@ app.post("/login", (req, res) => {
     }
 
     res.send({ message: "User login successful" });
+  });
+});
+
+app.post("/add-expense", (req, res) => {
+  const { amount, description, category } = req.body;
+
+  const insertExpenseQuery = `
+    INSERT INTO expensetable (amount, description, category) 
+    VALUES (?, ?, ?)`;
+  db.query(
+    insertExpenseQuery,
+    [amount, description, category],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting expense:", err);
+        res.status(500).send("Error inserting expense");
+        return;
+      }
+      res.send({ message: "Expense added successfully" });
+    }
+  );
+});
+app.get("/get-expenses", (req, res) => {
+  // Retrieve expenses data from the database
+  const getExpensesQuery = `SELECT * FROM expensetable`;
+  db.query(getExpensesQuery, (err, results) => {
+    if (err) {
+      console.error("Error fetching expenses:", err);
+      res.status(500).send("Error fetching expenses");
+      return;
+    }
+    res.send(results); // Send the expenses data back to the client
+  });
+});
+
+app.delete("/delete-expense/:id", (req, res) => {
+  const expenseId = req.params.id;
+
+  const deleteExpenseQuery = `DELETE FROM expensetable WHERE id = ?`;
+  db.query(deleteExpenseQuery, [expenseId], (err, result) => {
+    if (err) {
+      console.error("Error deleting expense:", err);
+      res.status(500).send("Error deleting expense");
+      return;
+    }
+    res.send({ message: "Expense deleted successfully" });
   });
 });
 
