@@ -4,6 +4,7 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = 3000;
@@ -11,6 +12,9 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public"))); // Ensure this is correctly set
+
+// JWT secret
+const secret = "your_jwt_secret";
 
 // Create a MySQL connection
 const db = mysql.createConnection({
@@ -37,7 +41,7 @@ db.query(
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
 `,
   (err, result) => {
@@ -48,16 +52,19 @@ db.query(
     console.log('Table "users" exists or was created');
   }
 );
-// Create the 'expensetable' table if it doesn't exist
+
+// Create the 'expenses' table if it doesn't exist
 db.query(
   `
-    CREATE TABLE IF NOT EXISTS expensetable (
+    CREATE TABLE IF NOT EXISTS expenses (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         amount DECIMAL(10, 2) NOT NULL,
         description TEXT NOT NULL,
         category VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
     )
 `,
   (err, result) => {
@@ -65,11 +72,22 @@ db.query(
       console.error("Error creating table:", err);
       return;
     }
-    console.log('Table "expense table" exists or was created');
+    console.log('Table "expenses" exists or was created');
   }
 );
 
-// Handle form submission
+// JWT utility functions
+function generateToken(user) {
+  return jwt.sign({ id: user.id, email: user.email }, secret, {
+    expiresIn: "1h",
+  });
+}
+
+function verifyToken(token) {
+  return jwt.verify(token, secret);
+}
+
+// Signup endpoint
 app.post("/signup", (req, res) => {
   const { name, email, password } = req.body;
 
@@ -103,11 +121,14 @@ app.post("/signup", (req, res) => {
         }
         return;
       }
-      res.send({ message: "User registered successfully" });
+      const token = generateToken({ id: result.insertId, email });
+
+      res.send({ message: "User registered successfully", token });
     });
   });
 });
 
+// Login endpoint
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -130,20 +151,36 @@ app.post("/login", (req, res) => {
       res.status(401).send({ message: "User not authorized" });
       return;
     }
-
-    res.send({ message: "User login successful" });
+    const token = generateToken(user);
+    res.send({ message: "User login successful", token });
   });
 });
 
-app.post("/add-expense", (req, res) => {
-  const { amount, description, category } = req.body;
+// Middleware to authenticate and identify the user
+function authenticate(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ message: "No token provided" });
+  }
+  try {
+    const decoded = verifyToken(token);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).send({ message: "Invalid token" });
+  }
+}
 
+// Add expense endpoint
+app.post("/add-expense", authenticate, (req, res) => {
+  const { amount, description, category } = req.body;
+  const userId = req.user.id;
   const insertExpenseQuery = `
-    INSERT INTO expensetable (amount, description, category) 
-    VALUES (?, ?, ?)`;
+    INSERT INTO expenses (user_id, amount, description, category) 
+    VALUES (?, ?, ?, ?)`;
   db.query(
     insertExpenseQuery,
-    [amount, description, category],
+    [userId, amount, description, category],
     (err, result) => {
       if (err) {
         console.error("Error inserting expense:", err);
@@ -154,10 +191,13 @@ app.post("/add-expense", (req, res) => {
     }
   );
 });
-app.get("/get-expenses", (req, res) => {
+
+// Get expenses endpoint
+app.get("/get-expenses", authenticate, (req, res) => {
+  const userId = req.user.id;
   // Retrieve expenses data from the database
-  const getExpensesQuery = `SELECT * FROM expensetable`;
-  db.query(getExpensesQuery, (err, results) => {
+  const getExpensesQuery = `SELECT * FROM expenses WHERE user_id=?`;
+  db.query(getExpensesQuery, [userId], (err, results) => {
     if (err) {
       console.error("Error fetching expenses:", err);
       res.status(500).send("Error fetching expenses");
@@ -167,11 +207,13 @@ app.get("/get-expenses", (req, res) => {
   });
 });
 
-app.delete("/delete-expense/:id", (req, res) => {
+// Delete expense endpoint
+app.delete("/delete-expense/:id", authenticate, (req, res) => {
   const expenseId = req.params.id;
+  const userId = req.user.id;
 
-  const deleteExpenseQuery = `DELETE FROM expensetable WHERE id = ?`;
-  db.query(deleteExpenseQuery, [expenseId], (err, result) => {
+  const deleteExpenseQuery = `DELETE FROM expenses WHERE id = ? AND user_id = ?`;
+  db.query(deleteExpenseQuery, [expenseId, userId], (err, result) => {
     if (err) {
       console.error("Error deleting expense:", err);
       res.status(500).send("Error deleting expense");

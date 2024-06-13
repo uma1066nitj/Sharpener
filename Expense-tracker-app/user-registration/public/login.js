@@ -13,6 +13,10 @@ function login(event) {
       password: password,
     })
     .then((response) => {
+      console.log("Response data:", response.data); // Log the response data
+
+      const token = response.data.token; // Assuming your API response contains a token
+      localStorage.setItem("token", token); // Save token in localStorage
       alert(response.data.message);
       emailInput.value = "";
       passwordInput.value = "";
