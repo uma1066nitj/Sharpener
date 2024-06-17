@@ -5,6 +5,7 @@ const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Razorpay = require("razorpay");
 
 const app = express();
 const port = 3000;
@@ -73,6 +74,25 @@ db.query(
       return;
     }
     console.log('Table "expenses" exists or was created');
+  }
+);
+// Create the 'orders' table if it doesn't exist
+db.query(
+  `
+  CREATE TABLE IF NOT EXISTS orders (
+    id VARCHAR(255) PRIMARY KEY,
+    status VARCHAR(50) NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+`,
+  (err) => {
+    if (err) {
+      console.error("Error creating table:", err);
+      return;
+    }
+    console.log('Table "orders" exists or was created');
   }
 );
 
@@ -220,6 +240,72 @@ app.delete("/delete-expense/:id", authenticate, (req, res) => {
       return;
     }
     res.send({ message: "Expense deleted successfully" });
+  });
+});
+
+// Razorpay instance
+const razorpay = new Razorpay({
+  key_id: "rzp_test_7pLzVMiy0WDKH8",
+  key_secret: "PMDFZTgprWUQXwfkg63QCQFS",
+});
+
+// Create order endpoint
+app.post("/create-order", authenticate, async (req, res) => {
+  try {
+    const options = {
+      amount: 50000, // Amount in paise (INR 500.00)
+      currency: "INR",
+      receipt: "receipt#1",
+      payment_capture: 1,
+    };
+
+    const order = await razorpay.orders.create(options);
+    const insertOrderQuery =
+      "INSERT INTO orders (id, status, user_id) VALUES (?, 'PENDING', ?)";
+    db.query(insertOrderQuery, [order.id, req.user.id], (err) => {
+      if (err) {
+        console.error("Error inserting order:", err);
+        res.status(500).send("Error inserting order");
+        return;
+      }
+      res.status(201).json(order);
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Order creation failed", error });
+  }
+});
+
+// Verify order endpoint
+app.post("/verify-order", authenticate, (req, res) => {
+  const { order_id, payment_id, status } = req.body;
+
+  if (!order_id || !status) {
+    return res
+      .status(400)
+      .send({ message: "Order ID and status are required" });
+  }
+  const updateOrderQuery = "UPDATE orders SET status = ? WHERE id = ?";
+  db.query(updateOrderQuery, [status, order_id], (err, result) => {
+    if (err) {
+      console.error("Error updating order status:", err);
+      res.status(500).send("Error updating order status");
+      return;
+    }
+    if (status === "SUCCESS") {
+      const updateUserQuery = "UPDATE users SET is_premium = TRUE WHERE id = ?";
+      db.query(updateUserQuery, [req.user.id], (err, result) => {
+        if (err) {
+          console.error("Error updating user status:", err);
+          res.status(500).send("Error updating user status");
+          return;
+        }
+        res.send({
+          message: "Transaction successful, user upgraded to premium",
+        });
+      });
+    } else {
+      res.send({ message: "Transaction failed" });
+    }
   });
 });
 

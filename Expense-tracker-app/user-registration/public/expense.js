@@ -78,5 +78,82 @@ function addExpense(event) {
       alert("Error adding expense");
     });
 }
+function buyPremium() {
+  const token = localStorage.getItem("token");
 
+  axios
+    .post(
+      "http://localhost:3000/create-order",
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    )
+    .then((response) => {
+      const orderData = response.data;
+
+      const options = {
+        key: "rzp_test_7pLzVMiy0WDKH8", // Enter the Key ID generated from the Razorpay Dashboard
+        amount: orderData.amount,
+        currency: "INR",
+        name: "Expense Tracker",
+        description: "Premium Membership",
+        order_id: orderData.id,
+        handler: function (response) {
+          axios
+            .post(
+              "http://localhost:3000/verify-order",
+              {
+                order_id: orderData.id,
+                payment_id: response.razorpay_payment_id,
+              },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            )
+            .then((res) => {
+              alert("Transaction successful");
+              window.location.reload();
+            })
+            .catch((err) => {
+              alert("Transaction verification failed");
+            });
+        },
+        prefill: {
+          name: "John Doe",
+          email: "john.doe@example.com",
+          contact: "9999999999",
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
+
+      const rzp1 = new Razorpay(options);
+      rzp1.on("payment.failed", function (response) {
+        axios
+          .post(
+            "http://localhost:3000/failed-order",
+            {
+              order_id: orderData.id,
+              payment_id: response.error.metadata.payment_id,
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+          .then((res) => {
+            alert("Transaction failed");
+          })
+          .catch((err) => {
+            alert("Failed to update transaction status");
+          });
+      });
+
+      rzp1.open();
+    })
+    .catch((error) => {
+      console.error("Error creating order:", error);
+    });
+}
 window.onload = fetchExpenses;
