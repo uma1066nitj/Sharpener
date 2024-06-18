@@ -106,6 +106,7 @@ function buyPremium() {
               {
                 order_id: orderData.id,
                 payment_id: response.razorpay_payment_id,
+                status: "SUCCESS",
               },
               {
                 headers: { Authorization: `Bearer ${token}` },

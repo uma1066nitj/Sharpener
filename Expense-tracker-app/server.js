@@ -32,7 +32,44 @@ db.connect((err) => {
   }
   console.log("Connected to MySQL");
 });
-
+db.connect((err) => {
+  if (err) {
+    console.error("Error connecting to MySQL:", err);
+    return;
+  }
+  console.log("Connected to MySQL");
+  const checkColumnQuery = `
+    SELECT COLUMN_NAME 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_SCHEMA = 'expensetracker' 
+    AND TABLE_NAME = 'users' 
+    AND COLUMN_NAME = 'is_premium';
+  `;
+  db.query(checkColumnQuery, (err, results) => {
+    if (err) {
+      console.error("Error checking for 'is_premium' column:", err);
+      return;
+    }
+    if (results.length === 0) {
+      const addColumnQuery = `
+        ALTER TABLE users 
+        ADD COLUMN is_premium BOOLEAN DEFAULT FALSE;
+      `;
+      db.query(addColumnQuery, (err, result) => {
+        if (err) {
+          console.error(
+            "Error adding 'is_premium' column to 'users' table:",
+            err
+          );
+          return;
+        }
+        console.log("'is_premium' column added to 'users' table");
+      });
+    } else {
+      console.log("'is_premium' column already exists in 'users' table");
+    }
+  });
+});
 // Create the 'users' table if it doesn't exist
 db.query(
   `
