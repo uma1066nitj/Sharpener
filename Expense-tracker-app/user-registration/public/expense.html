@@ -81,12 +81,39 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        #premiumMessage {
+            position: fixed;
+            font-size: 15px;
+            top: 10px;
+            right: 10px;
+            background-color: lightgreen;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        #leaderboard {
+            position: relative;
+            max-width: 500px;
+            margin: 2rem;
+            border: 2px solid greenyellow;
+            padding: 2rem;
+            text-align: left;
+        }
+        #leaderboardButton{
+            margin: 0 auto;
+            background-color: lightblue;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
         <button class="premium-button" onclick="buyPremium()">Buy Premium Membership</button>
-
+            <div id="premiumMessage"></div>
+            
     <form class="expense-form" onsubmit="addExpense(event)">
         <h2>Daily Expense Entry</h2>
         <label for="amount">Amount Spent</label>
@@ -101,13 +128,24 @@
             <option value="Other">Other</option>
         </select>
         <button type="submit">Add Expense</button>
+            
     </form>
+    
     <div class="expenses-list" id="expenses-list">
         <h2>Your Expenses</h2>
         <ul id="expenses">
             <!-- Expenses will be appended here -->
         </ul>
     </div>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <button id="leaderboardButton" style="display: none;" onclick="fetchLeaderboard()">Get Leaderboard</button>
+        <ol id="leaderboard-list">
+            <!-- Leaderboard will be appended here -->
+        </ol>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="./expense.js"></script>
+
+    <button id="leaderboardButton" style="display: none;" onclick="fetchLeaderboard()">Leaderboard</button>

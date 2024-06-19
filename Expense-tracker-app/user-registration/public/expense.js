@@ -93,7 +93,7 @@ function buyPremium() {
       const orderData = response.data;
 
       const options = {
-        key: "rzp_test_7pLzVMiy0WDKH8", // Enter the Key ID generated from the Razorpay Dashboard
+        key: "rzp_test_SVqd0bGwM0MMD7", // Enter the Key ID generated from the Razorpay Dashboard
         amount: orderData.amount,
         currency: "INR",
         name: "Expense Tracker",
@@ -157,4 +157,54 @@ function buyPremium() {
       console.error("Error creating order:", error);
     });
 }
-window.onload = fetchExpenses;
+function checkPremiumStatus() {
+  const token = localStorage.getItem("token");
+
+  axios
+    .get("http://localhost:3000/check-premium-status", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((response) => {
+      const isPremium = response.data.isPremium;
+      const premiumMessage = document.getElementById("premiumMessage");
+
+      if (isPremium) {
+        document.getElementById("premiumMessage").style.display = "block";
+        document.querySelector(".premium-button").style.display = "none";
+        document.getElementById("premiumMessage").innerText =
+          "👑 You are a Premium Member!";
+        document.getElementById("leaderboardButton").style.display = "block";
+      } else {
+        premiumMessage.textContent = "";
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking premium status:", error);
+    });
+}
+function fetchLeaderboard() {
+  const token = localStorage.getItem("token");
+
+  axios
+    .get("http://localhost:3000/leaderboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((response) => {
+      const leaderboardList = document.getElementById("leaderboard-list");
+      leaderboardList.innerHTML = ""; // Clear previous list items
+
+      response.data.forEach((user) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Name: ${user.name} - Total Expense: ${user.total_expense}`;
+        leaderboardList.appendChild(listItem);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching leaderboard data:", error);
+    });
+}
+
+window.onload = () => {
+  fetchExpenses();
+  checkPremiumStatus();
+};

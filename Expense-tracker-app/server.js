@@ -15,7 +15,8 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public"))); // Ensure this is correctly set
 
 // JWT secret
-const secret = "your_jwt_secret";
+const secret =
+  "8ced1c626603c9084e88cea24778703e65603a9df89b0657510ba7f15c563c0c";
 
 // Create a MySQL connection
 const db = mysql.createConnection({
@@ -25,13 +26,6 @@ const db = mysql.createConnection({
   database: "expensetracker",
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("Error connecting to MySQL:", err);
-    return;
-  }
-  console.log("Connected to MySQL");
-});
 db.connect((err) => {
   if (err) {
     console.error("Error connecting to MySQL:", err);
@@ -282,8 +276,8 @@ app.delete("/delete-expense/:id", authenticate, (req, res) => {
 
 // Razorpay instance
 const razorpay = new Razorpay({
-  key_id: "rzp_test_7pLzVMiy0WDKH8",
-  key_secret: "PMDFZTgprWUQXwfkg63QCQFS",
+  key_id: "rzp_test_SVqd0bGwM0MMD7",
+  key_secret: "wjkeBBBHYQftSYcqYax4Dvkq",
 });
 
 // Create order endpoint
@@ -343,6 +337,65 @@ app.post("/verify-order", authenticate, (req, res) => {
     } else {
       res.send({ message: "Transaction failed" });
     }
+  });
+});
+
+// New endpoint to check premium status
+app.get("/check-premium-status", authenticate, (req, res) => {
+  const userId = req.user.id;
+
+  const checkPremiumQuery = "SELECT is_premium FROM users WHERE id = ?";
+  db.query(checkPremiumQuery, [userId], (err, results) => {
+    if (err) {
+      console.error("Error checking premium status:", err);
+      res.status(500).send("Error checking premium status");
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+
+    const isPremium = results[0].is_premium;
+    res.send({ isPremium });
+  });
+});
+// Endpoint to get the leaderboard data
+app.get("/leaderboard", authenticate, (req, res) => {
+  const userId = req.user.id;
+
+  // Check if the user is premium
+  const checkPremiumQuery = "SELECT is_premium FROM users WHERE id = ?";
+  db.query(checkPremiumQuery, [userId], (err, results) => {
+    if (err) {
+      console.error("Error checking premium status:", err);
+      res.status(500).send("Error checking premium status");
+      return;
+    }
+
+    if (results.length === 0 || !results[0].is_premium) {
+      res.status(403).send({ message: "Access denied. Not a premium user." });
+      return;
+    }
+
+    // Query to get the leaderboard data
+    const leaderboardQuery = `
+      SELECT users.name, SUM(expenses.amount) AS total_expense 
+      FROM users 
+      JOIN expenses ON users.id = expenses.user_id 
+      GROUP BY users.id 
+      ORDER BY total_expense DESC
+    `;
+
+    db.query(leaderboardQuery, (err, results) => {
+      if (err) {
+        console.error("Error fetching leaderboard data:", err);
+        res.status(500).send("Error fetching leaderboard data");
+        return;
+      }
+
+      res.send(results);
+    });
   });
 });
 
