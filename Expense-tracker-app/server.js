@@ -64,6 +64,20 @@ db.connect((err) => {
     }
   });
 });
+// Add totalExpenses column
+db.query(
+  `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS totalExpenses DECIMAL(10, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS totalExpenses DECIMAL(10, 2) DEFAULT 0;
+`,
+  (err) => {
+    if (err) {
+      console.error("Error adding totalExpenses column:", err);
+    } else {
+      console.log("totalExpenses column exists or was added");
+    }
+  }
+);
 // Create the 'users' table if it doesn't exist
 db.query(
   `
@@ -73,7 +87,9 @@ db.query(
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        is_premium BOOLEAN DEFAULT FALSE,
+        totalExpenses DECIMAL(10, 2) DEFAULT 0
     )
 `,
   (err, result) => {
@@ -241,6 +257,19 @@ app.post("/add-expense", authenticate, (req, res) => {
       res.send({ message: "Expense added successfully" });
     }
   );
+  const updateUserQuery = `
+      UPDATE users 
+      SET totalExpenses = totalExpenses + ? 
+      WHERE id = ?`;
+
+  db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
+    if (err) {
+      console.error("Error updating total expenses:", err);
+      res.status(500).send("Error updating total expenses");
+      return;
+    }
+    res.send({ message: "Expense added successfully" });
+  });
 });
 
 // Get expenses endpoint
@@ -268,6 +297,19 @@ app.delete("/delete-expense/:id", authenticate, (req, res) => {
     if (err) {
       console.error("Error deleting expense:", err);
       res.status(500).send("Error deleting expense");
+      return;
+    }
+    res.send({ message: "Expense deleted successfully" });
+  });
+  const updateUserQuery = `
+        UPDATE users 
+        SET totalExpenses = totalExpenses - ? 
+        WHERE id = ?`;
+
+  db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
+    if (err) {
+      console.error("Error updating total expenses:", err);
+      res.status(500).send("Error updating total expenses");
       return;
     }
     res.send({ message: "Expense deleted successfully" });
