@@ -584,6 +584,42 @@ app.get("/leaderboard", authenticate, (req, res) => {
     });
   });
 });
+const Sib = require("sib-api-v3-sdk");
+const defaultClient = Sib.ApiClient.instance;
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey =
+  "xsmtpsib-fd0992810eff873004ed64954c96d55f4ed65dfbe0136e1ed7992f0d2152bbcf-OjvTrxBsbY1FgyCE";
+const apiInstance = new Sib.TransactionalEmailsApi();
+app.post("/password/forgotpassword", async (req, res) => {
+  const { email } = req.body;
+  // Send dummy email using Sendinblue
+  // const sendSmtpEmail = new Sib.SendSmtpEmail();
+  // sendSmtpEmail.subject = "Forgot Password";
+  // sendSmtpEmail.sender = {
+  //   name: "Uma Shankar",
+  //   email: "umashankarjha1066@gmail.com",
+  // };
+  // sendSmtpEmail.to = [{ email: email }];
+  // sendSmtpEmail.htmlContent =
+  //   "<p>This is a dummy email for password recovery.</p>";
+  const sender = { email: "umashankarjha1066@gmail.com" };
+  const recievers = { email: email };
+  try {
+    // const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const response = await apiInstance.sendTransacEmail({
+      sender,
+      to: recievers,
+      subject: "Forget Passward",
+      textContent: `This is a dummy email for password recovery`,
+    });
+    res
+      .status(200)
+      .json({ message: "Forgot password email sent successfully." });
+  } catch (error) {
+    console.error("Error sending forgot password email:", error);
+    res.status(500).json({ message: "Error sending forgot password email." });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
