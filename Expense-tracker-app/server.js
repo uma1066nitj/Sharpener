@@ -587,8 +587,7 @@ app.get("/leaderboard", authenticate, (req, res) => {
 const Sib = require("sib-api-v3-sdk");
 const defaultClient = Sib.ApiClient.instance;
 const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey =
-  "xsmtpsib-fd0992810eff873004ed64954c96d55f4ed65dfbe0136e1ed7992f0d2152bbcf-OjvTrxBsbY1FgyCE";
+apiKey.apiKey = "";
 const apiInstance = new Sib.TransactionalEmailsApi();
 app.post("/password/forgotpassword", async (req, res) => {
   const { email } = req.body;
