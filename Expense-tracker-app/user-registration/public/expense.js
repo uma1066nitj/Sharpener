@@ -1,8 +1,9 @@
 async function fetchExpenses() {
   const token = localStorage.getItem("token");
   console.log("Fetching expenses with token:", token);
+
   try {
-    const response = axios.get("http://localhost:3000/get-expenses", {
+    const response = await axios.get("http://localhost:3000/get-expenses", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const expensesList = document.getElementById("expenses");
@@ -35,7 +36,6 @@ async function deleteExpense(expenseId) {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-
     alert(response.data.message);
     fetchExpenses(); // Refresh expenses after deletion
   } catch (error) {
@@ -76,8 +76,10 @@ async function addExpense(event) {
     alert("Error adding expense");
   }
 }
+
 async function buyPremium() {
   const token = localStorage.getItem("token");
+
   try {
     const response = await axios.post(
       "http://localhost:3000/create-order",
@@ -108,7 +110,6 @@ async function buyPremium() {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-
           alert("Transaction successful");
           window.location.reload();
         } catch (err) {
@@ -142,14 +143,17 @@ async function buyPremium() {
       } catch (err) {
         alert("Failed to update transaction status");
       }
-      rzp1.open();
     });
+
+    rzp1.open();
   } catch (error) {
     console.error("Error creating order:", error);
   }
 }
+
 async function checkPremiumStatus() {
   const token = localStorage.getItem("token");
+
   try {
     const response = await axios.get(
       "http://localhost:3000/check-premium-status",
@@ -157,7 +161,6 @@ async function checkPremiumStatus() {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-
     const isPremium = response.data.isPremium;
     const premiumMessage = document.getElementById("premiumMessage");
 
@@ -174,13 +177,14 @@ async function checkPremiumStatus() {
     console.error("Error checking premium status:", error);
   }
 }
+
 async function fetchLeaderboard() {
   const token = localStorage.getItem("token");
+
   try {
     const response = await axios.get("http://localhost:3000/leaderboard", {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     const leaderboardList = document.getElementById("leaderboard-list");
     leaderboardList.innerHTML = ""; // Clear previous list items
 
