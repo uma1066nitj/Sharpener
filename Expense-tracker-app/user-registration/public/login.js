@@ -37,3 +37,29 @@ function login(event) {
       console.error("There was an error!", error);
     });
 }
+function showForgotPasswordForm() {
+  const loginForm = document.getElementById("login-page");
+  const forgotPasswordForm = document.getElementById("forgot-password-form");
+
+  loginForm.style.display = "none"; // Hide login form
+  forgotPasswordForm.style.display = "block"; // Show forgot password form
+}
+
+async function submitForgotPassword(event) {
+  event.preventDefault();
+
+  const emailInput = document.querySelector('input[name="forgot-email"]').value;
+
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/password/forgotpassword",
+      {
+        email: emailInput,
+      }
+    );
+    alert(response.data.message);
+  } catch (error) {
+    console.error("Error sending forgot password request:", error);
+    alert("Error sending forgot password request");
+  }
+}

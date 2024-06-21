@@ -50,16 +50,22 @@
 </head>
 
 <body>
-    <h2>LOGIN</h2>
-    <form class="submission-form" onsubmit="login(event)">
-        <label for="email">Enter Email</label>
-        <input type="email" name="email" placeholder="enter your email" required />
-        <label for="password">Enter Password</label>
-        <input type="password" name="password" placeholder="enter your password" required />
-        <button>Login</button>
-
+    <div id="login-page">
+        <h2>LOGIN</h2>
+        <form class="submission-form" onsubmit="login(event)">
+            <label for="email">Enter Email</label>
+            <input type="email" name="email" placeholder="enter your email" required />
+            <label for="password">Enter Password</label>
+            <input type="password" name="password" placeholder="enter your password" required />
+            <button>Login</button>
+        </form>
+        <button onclick="showForgotPasswordForm()"> Forgot password</button><br><br><br>
+    </div>
+    <form id="forgot-password-form" class="submission-form" style="display: none;" onsubmit="submitForgotPassword(event)">
+        <label for="forgot-email">Enter Email</label>
+        <input type="email" name="forgot-email" placeholder="enter your email" required />
+        <button type="submit">Submit</button>
     </form>
-    <button onclick="forgotpassword()"> Forgot password</button><br><br><br>
 
     <a href="./signup.html" id="id1">New User - Sign up</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
