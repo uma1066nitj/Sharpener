@@ -64,17 +64,37 @@ db.connect((err) => {
     }
   });
 });
-// Add totalExpenses column
+// Add totalExpenses column if it doesn't exist
 db.query(
   `
-  ALTER TABLE users ADD COLUMN IF NOT EXISTS totalExpenses DECIMAL(10, 2) DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS totalExpenses DECIMAL(10, 2) DEFAULT 0;
-`,
-  (err) => {
+    SELECT COLUMN_NAME 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_SCHEMA = 'expensetracker' 
+    AND TABLE_NAME = 'users' 
+    AND COLUMN_NAME = 'totalExpenses';
+    `,
+  (err, results) => {
     if (err) {
-      console.error("Error adding totalExpenses column:", err);
+      console.error("Error checking for 'totalExpenses' column:", err);
+      return;
+    }
+    if (results.length === 0) {
+      // If the column does not exist, add it
+      db.query(
+        `
+          ALTER TABLE users 
+          ADD COLUMN totalExpenses DECIMAL(10, 2) DEFAULT 0;
+          `,
+        (err) => {
+          if (err) {
+            console.error("Error adding totalExpenses column:", err);
+          } else {
+            console.log("totalExpenses column added to 'users' table");
+          }
+        }
+      );
     } else {
-      console.log("totalExpenses column exists or was added");
+      console.log("'totalExpenses' column already exists in 'users' table");
     }
   }
 );
@@ -158,39 +178,67 @@ function verifyToken(token) {
 app.post("/signup", (req, res) => {
   const { name, email, password } = req.body;
 
-  // Check if the user already exists
-  const checkUserQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkUserQuery, [email], async (err, results) => {
+  db.beginTransaction((err) => {
     if (err) {
-      console.error("Error checking user:", err);
-      res.status(500).send("Error checking user");
+      console.error("Error starting transaction:", err);
+      res.status(500).send("Error starting transaction");
       return;
     }
-
-    if (results.length > 0) {
-      res.status(409).send({ message: "User already exists" });
-      return;
-    }
-
-    // Hash the password before inserting into the database
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert new user into the database
-    const insertUserQuery =
-      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-    db.query(insertUserQuery, [name, email, hashedPassword], (err, result) => {
+    // Check if the user already exists
+    const checkUserQuery = "SELECT * FROM users WHERE email = ?";
+    db.query(checkUserQuery, [email], async (err, results) => {
       if (err) {
-        if (err.code === "ER_DUP_ENTRY") {
-          res.status(409).send({ message: "User already exists" });
-        } else {
-          console.error("Error inserting user:", err);
-          res.status(500).send("Error inserting user");
-        }
+        console.error("Error checking user:", err);
+        db.rollback(() => {
+          res.status(500).send("Error checking user");
+        });
         return;
       }
-      const token = generateToken({ id: result.insertId, email });
 
-      res.send({ message: "User registered successfully", token });
+      if (results.length > 0) {
+        db.rollback(() => {
+          res.status(409).send({ message: "User already exists" });
+        });
+        return;
+      }
+
+      // Hash the password before inserting into the database
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert new user into the database
+      const insertUserQuery =
+        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+      db.query(
+        insertUserQuery,
+        [name, email, hashedPassword],
+        (err, result) => {
+          if (err) {
+            if (err.code === "ER_DUP_ENTRY") {
+              db.rollback(() => {
+                res.status(409).send({ message: "User already exists" });
+              });
+            } else {
+              console.error("Error inserting user:", err);
+              db.rollback(() => {
+                res.status(500).send("Error inserting user");
+              });
+            }
+            return;
+          }
+          db.commit((err) => {
+            if (err) {
+              console.error("Error committing transaction:", err);
+              db.rollback(() => {
+                res.status(500).send("Error committing transaction");
+              });
+              return;
+            }
+            const token = generateToken({ id: result.insertId, email });
+
+            res.send({ message: "User registered successfully", token });
+          });
+        }
+      );
     });
   });
 });
@@ -242,33 +290,52 @@ function authenticate(req, res, next) {
 app.post("/add-expense", authenticate, (req, res) => {
   const { amount, description, category } = req.body;
   const userId = req.user.id;
-  const insertExpenseQuery = `
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error("Error starting transaction:", err);
+      res.status(500).send("Error starting transaction");
+      return;
+    }
+
+    const insertExpenseQuery = `
     INSERT INTO expenses (user_id, amount, description, category) 
     VALUES (?, ?, ?, ?)`;
-  db.query(
-    insertExpenseQuery,
-    [userId, amount, description, category],
-    (err, result) => {
-      if (err) {
-        console.error("Error inserting expense:", err);
-        res.status(500).send("Error inserting expense");
-        return;
+    db.query(
+      insertExpenseQuery,
+      [userId, amount, description, category],
+      (err, result) => {
+        if (err) {
+          console.error("Error inserting expense:", err);
+          db.rollback(() => {
+            res.status(500).send("Error inserting expense");
+          });
+        }
       }
-      res.send({ message: "Expense added successfully" });
-    }
-  );
-  const updateUserQuery = `
+    );
+    const updateUserQuery = `
       UPDATE users 
       SET totalExpenses = totalExpenses + ? 
       WHERE id = ?`;
 
-  db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
-    if (err) {
-      console.error("Error updating total expenses:", err);
-      res.status(500).send("Error updating total expenses");
-      return;
-    }
-    res.send({ message: "Expense added successfully" });
+    db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
+      if (err) {
+        console.error("Error updating total expenses:", err);
+        db.rollback(() => {
+          res.status(500).send("Error updating total expenses");
+        });
+      }
+      db.commit((err) => {
+        if (err) {
+          console.error("Error committing transaction:", err);
+          db.rollback(() => {
+            res.status(500).send("Error committing transaction");
+          });
+          return;
+        }
+        res.send({ message: "Expense added successfully" });
+      });
+    });
   });
 });
 
@@ -288,31 +355,108 @@ app.get("/get-expenses", authenticate, (req, res) => {
 });
 
 // Delete expense endpoint
+// app.delete("/delete-expense/:id", authenticate, (req, res) => {
+//   const expenseId = req.params.id;
+//   const userId = req.user.id;
+
+//   db.beginTransaction((err) => {
+//     if (err) {
+//       console.error("Error starting transaction:", err);
+//       res.status(500).send("Error starting transaction");
+//       return;
+//     }
+//   const deleteExpenseQuery = `DELETE FROM expenses WHERE id = ? AND user_id = ?`;
+//   db.query(deleteExpenseQuery, [expenseId, userId], (err, result) => {
+//     if (err) {
+//       console.error("Error deleting expense:", err);
+//       db.rollback(() => {
+//           res.status(500).send("Error fetching expense");
+//         });
+//       return;
+//     }
+//     res.send({ message: "Expense deleted successfully" });
+//   });
+//   const updateUserQuery = `
+//         UPDATE users
+//         SET totalExpenses = totalExpenses - ?
+//         WHERE id = ?`;
+
+//   db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
+//     if (err) {
+//       console.error("Error updating total expenses:", err);
+//       res.status(500).send("Error updating total expenses");
+//       return;
+//     }
+//     res.send({ message: "Expense deleted successfully" });
+//   });
+// });
 app.delete("/delete-expense/:id", authenticate, (req, res) => {
   const expenseId = req.params.id;
   const userId = req.user.id;
 
-  const deleteExpenseQuery = `DELETE FROM expenses WHERE id = ? AND user_id = ?`;
-  db.query(deleteExpenseQuery, [expenseId, userId], (err, result) => {
+  db.beginTransaction((err) => {
     if (err) {
-      console.error("Error deleting expense:", err);
-      res.status(500).send("Error deleting expense");
+      console.error("Error starting transaction:", err);
+      res.status(500).send("Error starting transaction");
       return;
     }
-    res.send({ message: "Expense deleted successfully" });
-  });
-  const updateUserQuery = `
-        UPDATE users 
-        SET totalExpenses = totalExpenses - ? 
-        WHERE id = ?`;
 
-  db.query(updateUserQuery, [amount, userId], (err, updateResult) => {
-    if (err) {
-      console.error("Error updating total expenses:", err);
-      res.status(500).send("Error updating total expenses");
-      return;
-    }
-    res.send({ message: "Expense deleted successfully" });
+    const getExpenseQuery =
+      "SELECT * FROM expenses WHERE id = ? AND user_id = ?";
+    db.query(getExpenseQuery, [expenseId, userId], (err, results) => {
+      if (err) {
+        console.error("Error fetching expense:", err);
+        db.rollback(() => {
+          res.status(500).send("Error fetching expense");
+        });
+        return;
+      }
+
+      if (results.length === 0) {
+        db.rollback(() => {
+          res.status(404).send({ message: "Expense not found" });
+        });
+        return;
+      }
+
+      const expense = results[0];
+
+      const deleteExpenseQuery = "DELETE FROM expenses WHERE id = ?";
+      db.query(deleteExpenseQuery, [expenseId], (err, result) => {
+        if (err) {
+          console.error("Error deleting expense:", err);
+          db.rollback(() => {
+            res.status(500).send("Error deleting expense");
+          });
+          return;
+        }
+
+        const updateUserQuery = `
+          UPDATE users 
+          SET totalExpenses = totalExpenses - ? 
+          WHERE id = ?`;
+        db.query(updateUserQuery, [expense.amount, userId], (err, result) => {
+          if (err) {
+            console.error("Error updating totalExpenses:", err);
+            db.rollback(() => {
+              res.status(500).send("Error updating totalExpenses");
+            });
+            return;
+          }
+
+          db.commit((err) => {
+            if (err) {
+              console.error("Error committing transaction:", err);
+              db.rollback(() => {
+                res.status(500).send("Error committing transaction");
+              });
+              return;
+            }
+            res.send({ message: "Expense deleted successfully" });
+          });
+        });
+      });
+    });
   });
 });
 
