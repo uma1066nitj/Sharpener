@@ -91,7 +91,7 @@ async function buyPremium() {
     const orderData = response.data;
 
     const options = {
-      key: "rzp_test_SVqd0bGwM0MMD7", // Enter the Key ID generated from the Razorpay Dashboard
+      key: process.env.RAZORPAY_KEY_ID, // Enter the Key ID generated from the Razorpay Dashboard
       amount: orderData.amount,
       currency: "INR",
       name: "Expense Tracker",

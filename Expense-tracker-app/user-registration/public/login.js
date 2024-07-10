@@ -13,10 +13,10 @@ function login(event) {
       password: password,
     })
     .then((response) => {
-      console.log("Response data:", response.data); // Log the response data
+      console.log("Response data:", response.data);
 
-      const token = response.data.token; // Assuming your API response contains a token
-      localStorage.setItem("token", token); // Save token in localStorage
+      const token = response.data.token;
+      localStorage.setItem("token", token);
       alert(response.data.message);
       emailInput.value = "";
       passwordInput.value = "";
@@ -37,12 +37,13 @@ function login(event) {
       console.error("There was an error!", error);
     });
 }
+
 function showForgotPasswordForm() {
   const loginForm = document.getElementById("login-page");
   const forgotPasswordForm = document.getElementById("forgot-password-form");
 
-  loginForm.style.display = "none"; // Hide login form
-  forgotPasswordForm.style.display = "block"; // Show forgot password form
+  loginForm.style.display = "none";
+  forgotPasswordForm.style.display = "block";
 }
 
 async function submitForgotPassword(event) {
@@ -51,12 +52,15 @@ async function submitForgotPassword(event) {
   const emailInput = document.querySelector('input[name="forgot-email"]').value;
 
   try {
+    console.log("Sending forgot password request for:", emailInput);
+
     const response = await axios.post(
       "http://localhost:3000/password/forgotpassword",
       {
         email: emailInput,
       }
     );
+    console.log("Forgot password response:", response.data);
     alert(response.data.message);
   } catch (error) {
     console.error("Error sending forgot password request:", error);
