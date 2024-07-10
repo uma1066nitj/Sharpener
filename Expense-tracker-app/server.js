@@ -519,9 +519,7 @@ app.get("/leaderboard", authenticate, (req, res) => {
 });
 // const API_KEY =
 //   "SG.tm1ljY9yStyXp1lbvKkLQg.flv63jZ7ZXqV3cOVr8oNVtdyfjtQqlV-SL22pgImMfcnpm";
-sgMail.setApiKey(
-  "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"
-);
+sgMail.setApiKey(process.env.SENDGRID_KEY_API);
 app.post("/password/forgotpassword", async (req, res) => {
   const { email } = req.body;
 
