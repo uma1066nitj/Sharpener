@@ -12,8 +12,10 @@ function loginUser(e) {
   axios
     .post(`${BASEURL}user/login`, user)
     .then((res) => {
-      if (res === 200) {
+      if (res.status === 200) {
         console.log(user);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userDetails", JSON.stringify(res.data));
       } else {
         console.log("User Login Failed");
         throw new Error("Failed to login");

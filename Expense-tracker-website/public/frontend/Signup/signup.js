@@ -16,7 +16,7 @@ function registerUser(e) {
   axios
     .post(`${BASEURL}user/singup`, User)
     .then((res) => {
-      if (res === 201) {
+      if (res.status === 201) {
         alert("Successfuly singed up");
       } else {
         console.log("User Registration failed");
