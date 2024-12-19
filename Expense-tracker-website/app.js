@@ -1,8 +1,15 @@
 const express = require("express");
 const body_parser = require("body-parser");
+const https = require("https");
 const path = require("path");
 
+// const sequelize = require("./util/database");
+
 const app = express();
+const dotenv = require("dotenv");
+
+//get config vars
+dotenv.config();
 
 // Middleware
 app.use(body_parser.json());
