@@ -25,7 +25,7 @@ exports.registerUser = (req, res, next) => {
 };
 
 function generateAccessToken(id) {
-  return jwt.sign(id, process.env.TOCKEN_SECRET);
+  return jwt.sign({ id }, process.env.TOCKEN_SECRET);
 }
 exports.loginUser = (req, res, next) => {
   const { email, password } = req.body;

@@ -1,9 +1,10 @@
 const express = require("express");
 const body_parser = require("body-parser");
-const https = require("https");
-const path = require("path");
+var cors = require("cors");
+const sequelize = require("./util/database");
+// const User = require("./models/user");
 
-// const sequelize = require("./util/database");
+const userRoutes = require("./routes/user");
 
 const app = express();
 const dotenv = require("dotenv");
@@ -11,26 +12,27 @@ const dotenv = require("dotenv");
 //get config vars
 dotenv.config();
 
+app.use(cors());
+
 // Middleware
 app.use(body_parser.json());
-app.use(express.static(path.join(__dirname, "public")));
 
-// Sample Route
-app.get("/", (req, res) => {
-  res.send("Server is running!");
-});
+app.use("/user", userRoutes);
 
-// Start Server
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connection established successfully.");
+  })
+  .catch((error) => {
+    console.error("Unable to connect to the database:", error);
+  });
 
-// Route for Login page
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/frontend/Login/login.html"));
-});
-
-// Route for Signup page
-app.get("/signup", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/frontend/Signup/signup.html"));
-});
+// sequelize
+//   .sync({ force: false })
+//   .then(() => {
+//     app.listen(3000);
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
