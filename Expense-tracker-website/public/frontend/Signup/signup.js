@@ -1,6 +1,6 @@
 const BASEURL = "http://localhost:3000/";
 
-document.getElementById("singupform").addEventListener("submit", registerUser);
+document.getElementById("signupform").addEventListener("submit", registerUser);
 
 function registerUser(e) {
   e.preventDefault();
@@ -14,10 +14,10 @@ function registerUser(e) {
   console.log(User);
 
   axios
-    .post(`${BASEURL}user/singup`, User)
+    .post(`${BASEURL}user/signup`, User)
     .then((res) => {
       if (res.status === 201) {
-        alert("Successfuly singed up");
+        alert("Successfuly signed up");
       } else {
         console.log("User Registration failed");
         throw new Error(res.data.messsage);
@@ -28,5 +28,5 @@ function registerUser(e) {
       console.log("error " + err);
     });
 
-  document.getElementById("singupform").reset();
+  document.getElementById("signupform").reset();
 }

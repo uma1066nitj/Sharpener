@@ -20,19 +20,10 @@ app.use(body_parser.json());
 app.use("/user", userRoutes);
 
 sequelize
-  .authenticate()
+  .sync()
   .then(() => {
-    console.log("Connection established successfully.");
+    app.listen(3000);
   })
-  .catch((error) => {
-    console.error("Unable to connect to the database:", error);
+  .catch((err) => {
+    console.log(err);
   });
-
-// sequelize
-//   .sync({ force: false })
-//   .then(() => {
-//     app.listen(3000);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
