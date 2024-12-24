@@ -1,10 +1,12 @@
 const express = require("express");
 const body_parser = require("body-parser");
 var cors = require("cors");
+const path = require("path");
 const sequelize = require("./util/database");
-// const User = require("./models/user");
+const User = require("./models/user");
 
 const userRoutes = require("./routes/user");
+const expenseRoutes = require("./routes/expense");
 
 const app = express();
 const dotenv = require("dotenv");
@@ -16,8 +18,10 @@ app.use(cors());
 
 // Middleware
 app.use(body_parser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/user", userRoutes);
+app.use("/expense", expenseRoutes);
 
 sequelize
   .sync()

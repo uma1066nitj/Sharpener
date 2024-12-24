@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+</head>
+
+<body>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+
+            text-align: left;
+            padding: 8px;
+        }
+
+        body {
+            height: 125vh;
+            margin-top: 80px;
+            padding: 30px;
+            background-size: cover;
+            font-family: sans-serif;
+        }
+
+        .display {
+            display: none;
+        }
+
+        select {
+            font-size: unset;
+            width: 80px;
+            margin-top: 20px;
+            color: white;
+            background-color: gray;
+        }
+    </style>
+
+
+    <h1>Expense Tracker</h1>
+    <div class="expense-tracker">
+        <form onsubmit="addNewExpense(event)">
+            <label for="expenseamount">Choose Expense Amount:</label>
+            <input type="number" name="expenseamount" required> </input>
+            <label for="description">Choose Description:</label>
+            <input type="text" name="description" required> </input>
+            <label for="category">Choose A Category:</label>
+            <select id="category" name="category">
+                <option value="Fuel">Fuel</option>
+                <option value="Food">Food</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Movie">Movie</option>
+                <option value="Others">Others</option>
+            </select>
+            <button>Add Expense</button>
+        </form>
+
+
+        <br><br>
+        <div class="content">
+            <table class="table">
+
+            </table>
+        </div>
+        <br><br>        
+   </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
