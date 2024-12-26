@@ -62,3 +62,23 @@ function removeExpensefromUI(expenseid) {
   const expenseElemId = `expense-${expenseid}`;
   document.getElementById(expenseElemId).remove();
 }
+
+function fetchExpenses() {
+  axios
+    .get(`${URLTOBACKEND}expense/getexpense`, {
+      headers: { Authorization: token },
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        response.data.expense.forEach((expense) => {
+          addNewExpensetoUI(expense);
+        });
+      } else {
+        throw new Error("Failed to fetch expenses");
+      }
+    })
+    .catch((err) => showError(err));
+}
+
+// Call fetchExpenses on page load
+window.addEventListener("DOMContentLoaded", fetchExpenses);
