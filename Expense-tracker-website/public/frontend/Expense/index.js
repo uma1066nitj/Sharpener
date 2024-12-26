@@ -14,7 +14,7 @@ function addNewExpense(e) {
   };
   console.log(expenseDetails);
   axios
-    .post(`${URLTOBACKEND}user/addexpense`, expenseDetails, {
+    .post(`${URLTOBACKEND}expense/addexpense`, expenseDetails, {
       headers: { Authorization: token },
     })
     .then((response) => {
@@ -39,7 +39,7 @@ function addNewExpensetoUI(element) {
 function deleteExpense(e, expenseid) {
   e.preventDefault();
   axios
-    .delete(`${URLTOBACKEND}user/deleteexpense?id=${expenseid}`, {
+    .delete(`${URLTOBACKEND}expense/deleteexpense?id=${expenseid}`, {
       headers: { Authorization: token },
     })
     .then((response) => {

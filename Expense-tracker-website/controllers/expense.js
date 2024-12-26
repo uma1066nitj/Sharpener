@@ -1,6 +1,6 @@
 const Expense = require("../models/expenses");
 
-const addexpense = (req, res, next) => {
+exports.addexpense = (req, res, next) => {
   const { expenseamount, description, category } = req.body;
   req.user
     .createExpense({ expenseamount, description, category })
@@ -12,7 +12,7 @@ const addexpense = (req, res, next) => {
     });
 };
 
-const getexpense = (req, res, next) => {
+exports.getexpense = (req, res, next) => {
   req.user
     .getExpenses()
     .then((expense) => {
@@ -23,7 +23,7 @@ const getexpense = (req, res, next) => {
     });
 };
 
-const deleteexpense = (req, res, next) => {
+exports.deleteexpense = (req, res, next) => {
   const expenseid = parseInt(req.query.id);
   console.log(expenseid + "expeseid");
   Expense.destroy({ where: { id: expenseid } })
@@ -39,5 +39,3 @@ const deleteexpense = (req, res, next) => {
         .json({ success: true, message: "Failed to Delete" });
     });
 };
-
-module.exports = { addexpense, getexpense, deleteexpense };

@@ -4,6 +4,7 @@ var cors = require("cors");
 const path = require("path");
 const sequelize = require("./util/database");
 const User = require("./models/user");
+const Expense = require("./models/expenses");
 
 const userRoutes = require("./routes/user");
 const expenseRoutes = require("./routes/expense");
@@ -22,6 +23,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/user", userRoutes);
 app.use("/expense", expenseRoutes);
+
+User.hasMany(Expense);
+Expense.belongsTo(User);
 
 sequelize
   .sync()

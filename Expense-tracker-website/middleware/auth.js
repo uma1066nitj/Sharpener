@@ -5,8 +5,15 @@ const authenticate = (req, res, next) => {
   try {
     const token = req.header("authorization");
     console.log("token : " + token);
-    const userid = Number(jwt.verify(token, process.env.TOCKEN_SECRET));
-    User.findByPk(userid)
+
+    // Verify token and extract userId
+    const decoded = jwt.verify(token, process.env.TOCKEN_SECRET);
+    const userId = decoded.id; // Assuming the token contains id
+
+    if (!userId) {
+      throw new Error("Invalid token payload");
+    }
+    User.findByPk(userId)
       .then((user) => {
         console.log(JSON.stringify(user));
         req.user = user;

@@ -6,7 +6,7 @@ const userauthentication = require("../middleware/auth");
 const router = express.Router();
 
 router.post(
-  "/addexpenses",
+  "/addexpense",
   userauthentication.authenticate,
   expenseControlller.addexpense
 );
@@ -18,7 +18,7 @@ router.get(
 );
 
 router.delete(
-  "/deleteexpense/:expenseId",
+  "/deleteexpense",
   userauthentication.authenticate,
   expenseControlller.deleteexpense
 );
