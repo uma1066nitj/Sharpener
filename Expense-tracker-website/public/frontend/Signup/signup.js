@@ -18,6 +18,7 @@ function registerUser(e) {
     .then((res) => {
       if (res.status === 201) {
         alert("Successfuly signed up");
+        // window.location.href = `${BASEURL}login`;
       } else {
         console.log("User Registration failed");
         throw new Error(res.data.messsage);

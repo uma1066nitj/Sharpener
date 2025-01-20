@@ -1,18 +1,21 @@
 const URLTOBACKEND = "http://localhost:3000/";
-const tableBody = document.querySelector(".table");
+const tableBody = document.querySelector(".table tbody");
+const EMAILID = "ceoumashankar@gmail.com";
+const PHONENO = "7257868848";
 
 const token = localStorage.getItem("token");
 
+// Add new expense
 function addNewExpense(e) {
   e.preventDefault();
-  const form = new FormData(e.target);
+  const form = e.target;
 
   const expenseDetails = {
-    expenseamount: form.get("expenseamount"),
-    description: form.get("description"),
-    category: form.get("category"),
+    expenseamount: form.expenseamount.value,
+    description: form.description.value,
+    category: form.category.value,
   };
-  console.log(expenseDetails);
+
   axios
     .post(`${URLTOBACKEND}expense/addexpense`, expenseDetails, {
       headers: { Authorization: token },
@@ -20,6 +23,7 @@ function addNewExpense(e) {
     .then((response) => {
       if (response.status === 201) {
         addNewExpensetoUI(response.data.expense);
+        form.reset();
       } else {
         throw new Error("Failed To create new expense");
       }
@@ -27,17 +31,25 @@ function addNewExpense(e) {
     .catch((err) => showError(err));
 }
 
+// Add expense to UI
 function addNewExpensetoUI(element) {
   tableBody.innerHTML += `
-        <tr id="expense-${element.id}">
-        <td class="amount">${element.expenseamount}</td>
-        <td class="description">${element.description}</td>
-        <td class="category">${element.category}</td>
-        <td><button style="cursor: pointer;background-color: red;border: none;" onclick='deleteExpense(event, ${element.id})'>Delete</button></td>
-        </tr>`;
+    <tr id="expense-${element.id}">
+      <td class="amount">${element.expenseamount}</td>
+      <td class="description">${element.description}</td>
+      <td class="category">${element.category}</td>
+      <td>
+        <button style="cursor: pointer; background-color: red; border: none;" onclick="deleteExpense(event, ${element.id})">
+          Delete
+        </button>
+      </td>
+    </tr>`;
 }
+
+// Delete expense
 function deleteExpense(e, expenseid) {
   e.preventDefault();
+
   axios
     .delete(`${URLTOBACKEND}expense/deleteexpense?id=${expenseid}`, {
       headers: { Authorization: token },
@@ -46,23 +58,68 @@ function deleteExpense(e, expenseid) {
       if (response.status === 204) {
         removeExpensefromUI(expenseid);
       } else {
-        throw new Error("Failed to delete");
+        throw new Error("Failed to delete expense");
       }
     })
-    .catch((err) => {
-      showError(err);
-    });
+    .catch((err) => showError(err));
 }
 
-function showError(err) {
-  document.body.innerHTML += `<div style="color:red;"> ${err}</div>`;
-}
-
+// Remove expense from UI
 function removeExpensefromUI(expenseid) {
   const expenseElemId = `expense-${expenseid}`;
   document.getElementById(expenseElemId).remove();
 }
 
+// Enable dark mode
+function enableDarkMode() {
+  document.body.classList.add("dark-mode");
+  document.getElementById("rzp-button1").textContent = "You're Premium User";
+  document.getElementById("rzp-button1").disabled = true;
+  document.getElementById("leaderboard-button").style.display = "block";
+}
+
+document.getElementById("leaderboard-button").onclick = function () {
+  axios
+    .get(`${URLTOBACKEND}premium/showLeaderBoard`, {
+      headers: { Authorization: token },
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        const leaderboardList = document.getElementById("leaderboard-list");
+        leaderboardList.innerHTML = ""; // Clear any previous data
+        const leaderboardData = response.data;
+
+        leaderboardData.forEach((user, index) => {
+          const row = document.createElement("tr");
+          // Add medals for top 3 users
+          let medal = "";
+          if (index === 0) {
+            medal = "🥇"; // Gold Medal
+          } else if (index === 1) {
+            medal = "🥈"; // Silver Medal
+          } else if (index === 2) {
+            medal = "🥉"; // Bronze Medal
+          }
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.name}${medal}</td>
+            <td>${user.totalExpenses}</td>
+          `;
+          leaderboardList.appendChild(row);
+        });
+
+        document.getElementById("leaderboard").style.display = "block";
+      } else {
+        throw new Error("Failed to fetch leaderboard");
+      }
+    })
+    .catch((err) => {
+      console.error("Error fetching leaderboard:", err);
+      alert("Unable to fetch leaderboard data.");
+    });
+};
+
+// Fetch expenses
 function fetchExpenses() {
   axios
     .get(`${URLTOBACKEND}expense/getexpense`, {
@@ -80,5 +137,72 @@ function fetchExpenses() {
     .catch((err) => showError(err));
 }
 
-// Call fetchExpenses on page load
-window.addEventListener("DOMContentLoaded", fetchExpenses);
+// Buy premium membership
+document.getElementById("rzp-button1").onclick = async function (e) {
+  e.preventDefault();
+
+  const response = await axios.get(
+    `${URLTOBACKEND}purchase/premiummembership`,
+    { headers: { Authorization: token } }
+  );
+
+  const options = {
+    key: response.data.key_id,
+    amount: response.data.order.amount,
+    name: "Uma Shankar",
+    description: "Premium Membership",
+    order_id: response.data.order.id,
+    prefill: {
+      name: "Uma Shankar",
+      email: EMAILID,
+      contact: PHONENO,
+    },
+    theme: {
+      color: "#3399cc",
+    },
+    handler: function (response) {
+      axios
+        .post(
+          `${URLTOBACKEND}purchase/updatetransactionstatus`,
+          {
+            orderid: options.order_id,
+            paymentid: response.razorpay_payment_id,
+          },
+          { headers: { Authorization: token } }
+        )
+        .then(() => {
+          alert("You are a Premium User Now");
+          localStorage.setItem(
+            "userDetails",
+            JSON.stringify({ ispremiumuser: true })
+          );
+          enableDarkMode();
+        })
+        .catch(() => {
+          alert("Something went wrong. Try Again!!!");
+        });
+    },
+  };
+
+  const rzp1 = new Razorpay(options);
+  rzp1.open();
+
+  rzp1.on("payment.failed", function (response) {
+    alert("Payment Failed");
+    console.error(response.error);
+  });
+};
+
+// Show error
+function showError(err) {
+  document.body.innerHTML += `<div style="color:red;"> ${err}</div>`;
+}
+
+// Check premium status on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  if (userDetails?.ispremiumuser) {
+    enableDarkMode();
+  }
+  fetchExpenses();
+});

@@ -1,64 +1,76 @@
+const sequelize = require("../util/database");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-exports.registerUser = (req, res, next) => {
+exports.registerUser = async (req, res, next) => {
   const { name, email, phone, password } = req.body;
-  console.log(req.body);
   const saltrounds = 10;
-  bcrypt.genSalt(saltrounds, function (err, salt) {
-    bcrypt.hash(password, salt, function (err, hash) {
-      if (err) {
-        console.log("unable to create new user");
-        res.json({ message: "unable to create new user" });
-      }
-      User.create({ name, email, phone, password: hash })
-        .then(() => {
-          res.status(201).json({ message: "successfully created new user" });
-        })
-        .catch((err) => {
-          res.status(403).json({ sucess: false, error: err });
-          console.log("error " + err.message);
-        });
-    });
-  });
+
+  const t = await sequelize.transaction(); // Start a transaction
+
+  try {
+    // Generate salt and hash the password
+    const salt = await bcrypt.genSalt(saltrounds);
+    const hash = await bcrypt.hash(password, salt);
+
+    // Create the user with the transaction
+    await User.create(
+      { name, email, phone, password: hash },
+      { transaction: t }
+    );
+
+    await t.commit(); // Commit the transaction
+    res.status(201).json({ message: "Successfully created new user" });
+  } catch (err) {
+    await t.rollback(); // Rollback the transaction in case of an error
+    console.error("Unable to create new user:", err.message);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Unable to create new user",
+        error: err,
+      });
+  }
 };
 
 function generateAccessToken(id) {
   return jwt.sign({ id }, process.env.TOCKEN_SECRET);
 }
-exports.loginUser = (req, res, next) => {
+
+exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(password);
-  User.findAll({ where: { email } }).then((user) => {
-    if (user.length > 0) {
-      bcrypt.compare(password, user[0].password, function (err, response) {
-        if (err) {
-          console.log(err);
-          return res.json({
-            success: false,
-            message: "Something went wrong",
-          });
-        }
-        if (response) {
-          console.log(JSON.stringify(user));
-          const jwttoken = generateAccessToken(user[0].id);
-          return res.status(200).json({
-            token: jwttoken,
-            success: true,
-            message: "Successfully Logged In",
-          });
-        } else {
-          // response is OutgoingMessage object that server response http request
-          return res
-            .status(401)
-            .json({ success: false, message: "passwords do not match" });
-        }
-      });
-    } else {
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "passwords do not match" });
+        .json({ success: false, message: "User not found" });
     }
-  });
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Passwords do not match" });
+    }
+
+    // Generate JWT token
+    const token = generateAccessToken(user.id);
+    res.status(200).json({
+      token,
+      ispremiumuser: user.ispremiumuser,
+      success: true,
+      message: "Successfully Logged In",
+    });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Something went wrong", error: err });
+  }
 };
