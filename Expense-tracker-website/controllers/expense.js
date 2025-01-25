@@ -44,6 +44,7 @@ exports.getexpense = (req, res, next) => {
 
 const paginationResult = function pagination(req, model) {
   try {
+<<<<<<< HEAD
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
     const startIndex = (page - 1) * limit;
@@ -73,6 +74,40 @@ const paginationResult = function pagination(req, model) {
     console.log("err :" + err);
   }
 };
+=======
+          const page = parseInt(req.query.page);
+          const limit = parseInt(req.query.limit);
+          const startIndex = (page - 1) * limit;
+          const endIndex = page * limit;
+
+          const result = {};
+
+          if (endIndex < model.length) {
+              result.next = {
+                  page: page + 1,
+                  limit: limit
+              }
+          }
+          if (startIndex > 0) {
+              result.previous = {
+                  page: page - 1,
+                  limit: limit
+              }
+          }
+
+          
+          result.lastPage = Math.floor((model.length - 1) / limit);
+
+          result.results = model.slice(startIndex, endIndex);
+
+          return result;
+  }
+  catch (err) {
+      console.log('err :' + err);
+  }
+}
+
+>>>>>>> 35b81552ba496fa61215ae640bdbac5e6dc1aa58
 
 exports.deleteexpense = (req, res, next) => {
   const expenseid = parseInt(req.query.id);
