@@ -206,3 +206,73 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   fetchExpenses();
 });
+
+//Pagination Start
+const prev = document.getElementById("prevPage");
+const curr = document.getElementById("currPage");
+const next = document.getElementById("nextPage");
+
+let totalpages;
+let ITEM_PER_PAGE = 10;
+let prevPageNumber;
+let currPageNumber;
+let nextPageNumber;
+
+prev.addEventListener("click", () => {
+  console.log("Back Button Clicked");
+  currPageNumber = parseInt(curr.innerHTML);
+
+  if (currPageNumber !== 1) {
+    currPageNumber--;
+    curr.innerHTML = currPageNumber;
+    getExpenses(currPageNumber, ITEM_PER_PAGE);
+  }
+});
+
+next.addEventListener("click", () => {
+  console.log("Next Button Clicked");
+  currPageNumber = parseInt(curr.innerHTML);
+
+  ITEM_PER_PAGE = document.getElementById("setlimit").value;
+
+  if (currPageNumber < totalpages) {
+    currPageNumber++;
+    curr.innerHTML = currPageNumber;
+    getExpenses(currPageNumber, ITEM_PER_PAGE);
+  }
+});
+
+//Pagination End
+function addExpensetoUI(element) {
+  tableBody.innerHTML += `
+      <tr id="expense-${element.id}">
+      <td class="amount">${element.expenseamount}</td>
+      <td class="description">${element.description}</td>
+      <td class="category">${element.category}</td>
+      <td><button style="cursor: pointer;background-color: red;border: none;" onclick='deleteExpense(event, ${element.id})'>Delete</button></td>
+      </tr>`;
+}
+
+function getExpenses(page = 1, limit = 10) {
+  tableBody.innerHTML = ` <tr>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Delete</th>
+        </tr>`;
+
+  axios
+    .get(`${URLTOBACKEND}user/getexpense?page=${page}&limit=${limit}`, {
+      headers: { Authorization: token },
+    })
+    .then((response) => {
+      if (response.status == 200) {
+        response.data.expense.results.forEach((expense) => {
+          totalpages = expense.lastPage;
+          addExpensetoUI(expense);
+        });
+      } else {
+        throw new Error();
+      }
+    });
+}
