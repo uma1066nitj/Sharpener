@@ -32,9 +32,14 @@ exports.addexpense = (req, res, next) => {
 exports.getexpense = (req, res, next) => {
   req.user
     .getExpenses()
-    .then((expense) => {
-      expense = paginationResult(req, expense);
-      return res.status(200).json({ expense, success: true });
+    .then((expenses) => {
+      const total = expenses.length; // Get the total number of expenses
+      const paginatedData = paginationResult(req, expenses);
+      return res.status(200).json({
+        expense: paginatedData,
+        total, // Include total count in the response
+        success: true,
+      });
     })
     .catch((err) => {
       console.error("Error fetching expenses:", err);
@@ -50,8 +55,9 @@ const paginationResult = function pagination(req, model) {
     const endIndex = page * limit;
 
     const result = {};
+    const totalCount = model.length;
 
-    if (endIndex < model.length) {
+    if (endIndex < totalCount) {
       result.next = {
         page: page + 1,
         limit: limit,
@@ -64,7 +70,7 @@ const paginationResult = function pagination(req, model) {
       };
     }
 
-    result.lastPage = Math.floor((model.length - 1) / limit);
+    result.lastPage = Math.floor(totalCount / limit);
 
     result.results = model.slice(startIndex, endIndex);
 

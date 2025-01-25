@@ -46,7 +46,9 @@
             text-align: center;
             margin-bottom: 20px;
             font-size: 1.8rem;
-            color: #333;
+            color: #0b6121;
+            border: 2px solid black;
+            background-color: #dadbdd;
         }
 
         form {
@@ -64,6 +66,7 @@
             font-size: 1rem;
             color: #555;
             margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .form-group input,
@@ -86,6 +89,7 @@
             background-color: #007bff;
             color: white;
             font-size: 1rem;
+            font-weight: bold;
             padding: 10px;
             border: none;
             border-radius: 5px;
@@ -101,19 +105,17 @@
             margin-top: 20px;
         }
 
-        table {
+        table{
             border-collapse: collapse;
             width: 100%;
             margin-top: 10px;
-            text-align: left;
             font-weight: bold;
             text-align: center;
         }
-
         th,
         td {
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 2px solid #3eba26;
         }
 
         th {
@@ -228,18 +230,18 @@
 
         .setlimit p {
         margin: 0;
-        font-size: 1.2rem;
+        font-size: 1rem;
         color: #333;
         font-weight: bold;
         }
 
         .setlimit select {
         padding: 8px 12px;
-        border: 1px solid #161717;
+        border: 1px solid #5acb14;
         border-radius: 5px;
-        background-color: #1b486c;
+        background-color: #bfcfdc;
         outline: none;
-        font-size: 1.2rem;
+        font-size: 1rem;
         cursor: pointer;
         transition: border 0.3s;
         }
@@ -279,6 +281,7 @@
             </form>
 
             <div class="content">
+                <h2>Expense List</h2>
                 <table class="table">
                     <thead>
                         <tr>
@@ -302,8 +305,9 @@
             <div class="setlimit">
                 <p style="color: black;">Item per Page :</p>
                 <select name="limit" id="setlimit">
-                    <option value="5">5</option>
+                    <option value="5" selected>5</option>
                     <option value="10">10</option>
+                    <option value="20">20</option>
                     <option value="30">30</option>
                 </select>
             <p id="pagination-info" style="color: black;"></p>

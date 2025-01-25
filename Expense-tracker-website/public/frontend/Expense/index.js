@@ -8,6 +8,9 @@ const next = document.getElementById("nextPage");
 const token = localStorage.getItem("token");
 const setLimitDropdown = document.getElementById("setlimit");
 const paginationInfo = document.getElementById("pagination-info");
+
+let currentPage = 1;
+let totalCount = 0;
 // Add new expense
 function addNewExpense(e) {
   e.preventDefault();
@@ -25,7 +28,20 @@ function addNewExpense(e) {
     })
     .then((response) => {
       if (response.status === 201) {
-        addNewExpensetoUI(response.data.expense);
+        totalCount++;
+        const limit = parseInt(setLimitDropdown.value);
+        // addNewExpensetoUI(response.data.expense);
+        const currentPageTotal = currentPage * limit;
+        if (currentPageTotal < totalCount) {
+          // Add to current UI only if it fits within the current page
+          addNewExpensetoUI(response.data.expense);
+        } else {
+          // Go to the next page if current page exceeds the limit
+          currentPage++;
+          getExpenses(currentPage, limit);
+        }
+        updatedPagination(currentPage, limit);
+        updateButtonsState(currentPage, limit);
         form.reset();
       } else {
         throw new Error("Failed to create new expense");
@@ -60,6 +76,8 @@ function deleteExpense(e, expenseid) {
     .then((response) => {
       if (response.status === 204) {
         removeExpensefromUI(expenseid);
+        updatedPagination(currentPage, limit);
+        updateButtonsState(currentPage, limit);
       } else {
         throw new Error("Failed to delete expense");
       }
@@ -192,38 +210,43 @@ function getExpenses(page, limit) {
     })
     .then((response) => {
       if (response.status === 200) {
-        totalpages = response.data.expense.totalPages;
-
+        console.log(response.data);
+        const { total } = response.data;
+        totalCount = total;
         response.data.expense.results.forEach((expense) => {
           addNewExpensetoUI(expense);
         });
+        updatedPagination(page, limit);
+        updateButtonsState(page, limit);
       } else {
         throw new Error("Failed to fetch expenses");
       }
     })
     .catch((err) => showError(err));
 }
+
 setLimitDropdown.addEventListener("change", () => {
-  limit = setLimitDropdown.value;
-  getExpenses(1, limit);
+  const limit = parseInt(setLimitDropdown.value);
+  localStorage.setItem("pagelimit", limit);
+  currentPage = 1;
+  getExpenses(currentPage, limit);
 });
+
 // Pagination
 prev.addEventListener("click", () => {
-  let currPageNumber = parseInt(curr.innerHTML);
-
-  if (currPageNumber > 1) {
-    currPageNumber--;
-    curr.innerHTML = currPageNumber;
-    getExpenses(currPageNumber, 5);
+  if (currentPage > 1) {
+    currentPage--;
+    const limit = parseInt(setLimitDropdown.value) || 5;
+    getExpenses(currentPage, limit);
   }
 });
 
 next.addEventListener("click", () => {
-  let currPageNumber = parseInt(curr.innerHTML);
-
-  currPageNumber++;
-  curr.innerHTML = currPageNumber;
-  getExpenses(currPageNumber, 5);
+  const limit = parseInt(setLimitDropdown.value) || 5;
+  if (currentPage * limit < totalCount) {
+    currentPage++;
+    getExpenses(currentPage, limit);
+  }
 });
 
 // On page load
@@ -232,14 +255,21 @@ window.addEventListener("DOMContentLoaded", () => {
   if (userDetails?.ispremiumuser) {
     enableDarkMode();
   }
-  if (localStorage.getItem("pagelimit")) {
-    document.getElementById("setlimit").innerHTML =
-      localStorage.getItem("pagelimit");
-  }
-  getExpenses(1, 5); // Fetch first page of expenses
-  updatedPagination(5);
+  const savedLimit = localStorage.getItem("pagelimit") || 5;
+  setLimitDropdown.value = savedLimit;
+
+  getExpenses(1, savedLimit);
+  updatedPagination(currentPage, limit);
+  updateButtonsState(currentPage, limit);
 });
 
-function updatedPagination(limit) {
-  let currPage = 1;
+function updatedPagination(currentPage, itemsPerPage) {
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, totalCount);
+  paginationInfo.textContent = `Showing ${start}-${end} of ${totalCount}`;
+}
+function updateButtonsState(currentPage, itemsPerPage) {
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  prev.disabled = currentPage === 1; // Disable "Prev" button if on the first page
+  next.disabled = currentPage >= totalPages; // Disable "Next" button if on the last page
 }
