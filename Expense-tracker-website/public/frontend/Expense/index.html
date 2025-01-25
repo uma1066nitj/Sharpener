@@ -140,7 +140,8 @@
         #rzp-button1:hover {
             background-color: #218838;
         }
-         #leaderboard-button {
+
+        #leaderboard-button {
             margin-top: 20px;
             width: 100%;
             padding: 10px;
@@ -152,30 +153,33 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         #leaderboard-button:hover {
             background-color: #28a745;
         }
+
         .dark-mode {
-        background-color: #121212;
-        color: #ffffff;
+            background-color: #121212;
+            color: #ffffff;
         }
 
         .dark-mode input,
         .dark-mode select,
         .dark-mode button {
-        background-color: #1e1e1e;
-        color: #ffffff;
+            background-color: #1e1e1e;
+            color: #ffffff;
         }
 
         .dark-mode table {
-        background-color: #1dd5c8;
-        color: #ffffff;
+            background-color: #1dd5c8;
+            color: #ffffff;
         }
 
         .dark-mode th,
         .dark-mode td {
-        border-color: #333333;
+            border-color: #333333;
         }
+
         #leaderboard table {
             margin-top: 10px;
         }
@@ -223,6 +227,12 @@
                         <!-- Data will be dynamically added -->
                     </tbody>
                 </table>
+            </div>
+            <div id="pagination" class="pagination">
+                <!-- page button -->
+                <button id="prevPage">Prev</button>
+                <button id="currPage" style="background-color: bisque;">1</button>
+                <button id="nextPage">Next</button>
             </div>
 
             <button id="rzp-button1">Buy Premium</button>

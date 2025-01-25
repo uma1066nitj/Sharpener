@@ -33,12 +33,45 @@ exports.getexpense = (req, res, next) => {
   req.user
     .getExpenses()
     .then((expense) => {
+      expense = paginationResult(req, expense);
       return res.status(200).json({ expense, success: true });
     })
     .catch((err) => {
       console.error("Error fetching expenses:", err);
       return res.status(402).json({ error: err, success: false });
     });
+};
+
+const paginationResult = function pagination(req, model) {
+  try {
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const result = {};
+
+    if (endIndex < model.length) {
+      result.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+    if (startIndex > 0) {
+      result.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+
+    result.lastPage = Math.floor((model.length - 1) / limit);
+
+    result.results = model.slice(startIndex, endIndex);
+
+    return result;
+  } catch (err) {
+    console.log("err :" + err);
+  }
 };
 
 exports.deleteexpense = (req, res, next) => {
