@@ -2,9 +2,12 @@ const URLTOBACKEND = "http://localhost:3000/";
 const tableBody = document.querySelector(".table tbody");
 const EMAILID = "ceoumashankar@gmail.com";
 const PHONENO = "7257868848";
-
+const prev = document.getElementById("prevPage");
+const curr = document.getElementById("currPage");
+const next = document.getElementById("nextPage");
 const token = localStorage.getItem("token");
-
+const setLimitDropdown = document.getElementById("setlimit");
+const paginationInfo = document.getElementById("pagination-info");
 // Add new expense
 function addNewExpense(e) {
   e.preventDefault();
@@ -25,7 +28,7 @@ function addNewExpense(e) {
         addNewExpensetoUI(response.data.expense);
         form.reset();
       } else {
-        throw new Error("Failed To create new expense");
+        throw new Error("Failed to create new expense");
       }
     })
     .catch((err) => showError(err));
@@ -119,24 +122,6 @@ document.getElementById("leaderboard-button").onclick = function () {
     });
 };
 
-// Fetch expenses
-function fetchExpenses() {
-  axios
-    .get(`${URLTOBACKEND}expense/getexpense`, {
-      headers: { Authorization: token },
-    })
-    .then((response) => {
-      if (response.status === 200) {
-        response.data.expense.forEach((expense) => {
-          addNewExpensetoUI(expense);
-        });
-      } else {
-        throw new Error("Failed to fetch expenses");
-      }
-    })
-    .catch((err) => showError(err));
-}
-
 // Buy premium membership
 document.getElementById("rzp-button1").onclick = async function (e) {
   e.preventDefault();
@@ -198,81 +183,63 @@ function showError(err) {
   document.body.innerHTML += `<div style="color:red;"> ${err}</div>`;
 }
 
-// Check premium status on page load
+function getExpenses(page, limit) {
+  tableBody.innerHTML = "";
+
+  axios
+    .get(`${URLTOBACKEND}expense/getexpense?page=${page}&limit=${limit}`, {
+      headers: { Authorization: token },
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        totalpages = response.data.expense.totalPages;
+
+        response.data.expense.results.forEach((expense) => {
+          addNewExpensetoUI(expense);
+        });
+      } else {
+        throw new Error("Failed to fetch expenses");
+      }
+    })
+    .catch((err) => showError(err));
+}
+setLimitDropdown.addEventListener("change", () => {
+  limit = setLimitDropdown.value;
+  getExpenses(1, limit);
+});
+// Pagination
+prev.addEventListener("click", () => {
+  let currPageNumber = parseInt(curr.innerHTML);
+
+  if (currPageNumber > 1) {
+    currPageNumber--;
+    curr.innerHTML = currPageNumber;
+    getExpenses(currPageNumber, 5);
+  }
+});
+
+next.addEventListener("click", () => {
+  let currPageNumber = parseInt(curr.innerHTML);
+
+  currPageNumber++;
+  curr.innerHTML = currPageNumber;
+  getExpenses(currPageNumber, 5);
+});
+
+// On page load
 window.addEventListener("DOMContentLoaded", () => {
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
   if (userDetails?.ispremiumuser) {
     enableDarkMode();
   }
-  fetchExpenses();
-});
-
-//Pagination Start
-const prev = document.getElementById("prevPage");
-const curr = document.getElementById("currPage");
-const next = document.getElementById("nextPage");
-
-let totalpages;
-let ITEM_PER_PAGE = 10;
-let prevPageNumber;
-let currPageNumber;
-let nextPageNumber;
-
-prev.addEventListener("click", () => {
-  console.log("Back Button Clicked");
-  currPageNumber = parseInt(curr.innerHTML);
-
-  if (currPageNumber !== 1) {
-    currPageNumber--;
-    curr.innerHTML = currPageNumber;
-    getExpenses(currPageNumber, ITEM_PER_PAGE);
+  if (localStorage.getItem("pagelimit")) {
+    document.getElementById("setlimit").innerHTML =
+      localStorage.getItem("pagelimit");
   }
+  getExpenses(1, 5); // Fetch first page of expenses
+  updatedPagination(5);
 });
 
-next.addEventListener("click", () => {
-  console.log("Next Button Clicked");
-  currPageNumber = parseInt(curr.innerHTML);
-
-  ITEM_PER_PAGE = document.getElementById("setlimit").value;
-
-  if (currPageNumber < totalpages) {
-    currPageNumber++;
-    curr.innerHTML = currPageNumber;
-    getExpenses(currPageNumber, ITEM_PER_PAGE);
-  }
-});
-
-//Pagination End
-function addExpensetoUI(element) {
-  tableBody.innerHTML += `
-      <tr id="expense-${element.id}">
-      <td class="amount">${element.expenseamount}</td>
-      <td class="description">${element.description}</td>
-      <td class="category">${element.category}</td>
-      <td><button style="cursor: pointer;background-color: red;border: none;" onclick='deleteExpense(event, ${element.id})'>Delete</button></td>
-      </tr>`;
-}
-
-function getExpenses(page = 1, limit = 10) {
-  tableBody.innerHTML = ` <tr>
-        <th>Amount</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Delete</th>
-        </tr>`;
-
-  axios
-    .get(`${URLTOBACKEND}user/getexpense?page=${page}&limit=${limit}`, {
-      headers: { Authorization: token },
-    })
-    .then((response) => {
-      if (response.status == 200) {
-        response.data.expense.results.forEach((expense) => {
-          totalpages = expense.lastPage;
-          addExpensetoUI(expense);
-        });
-      } else {
-        throw new Error();
-      }
-    });
+function updatedPagination(limit) {
+  let currPage = 1;
 }
