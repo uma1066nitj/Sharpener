@@ -16,6 +16,7 @@ function loginUser(e) {
         console.log(user);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("userDetails", JSON.stringify(res.data));
+
         window.location.href = "../Expense/index.html"; // change the page on successful login
       } else {
         console.log("User Login Failed");

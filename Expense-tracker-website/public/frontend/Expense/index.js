@@ -8,7 +8,7 @@ const next = document.getElementById("nextPage");
 const token = localStorage.getItem("token");
 const setLimitDropdown = document.getElementById("setlimit");
 const paginationInfo = document.getElementById("pagination-info");
-
+const username = document.getElementById("username");
 let currentPage = 1;
 let totalCount = 0;
 // Add new expense
@@ -75,6 +75,7 @@ function deleteExpense(e, expenseid) {
     })
     .then((response) => {
       if (response.status === 204) {
+        const limit = parseInt(setLimitDropdown.value);
         removeExpensefromUI(expenseid);
         updatedPagination(currentPage, limit);
         updateButtonsState(currentPage, limit);
@@ -210,7 +211,7 @@ function getExpenses(page, limit) {
     })
     .then((response) => {
       if (response.status === 200) {
-        console.log(response.data);
+        // console.log(response.data);
         const { total } = response.data;
         totalCount = total;
         response.data.expense.results.forEach((expense) => {
@@ -252,6 +253,10 @@ next.addEventListener("click", () => {
 // On page load
 window.addEventListener("DOMContentLoaded", () => {
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const limit = parseInt(setLimitDropdown.value);
+  // console.log(userDetails);
+  username.textContent = userDetails.username;
+
   if (userDetails?.ispremiumuser) {
     enableDarkMode();
   }
@@ -261,6 +266,7 @@ window.addEventListener("DOMContentLoaded", () => {
   getExpenses(1, savedLimit);
   updatedPagination(currentPage, limit);
   updateButtonsState(currentPage, limit);
+  updateClock();
 });
 
 function updatedPagination(currentPage, itemsPerPage) {
@@ -273,3 +279,15 @@ function updateButtonsState(currentPage, itemsPerPage) {
   prev.disabled = currentPage === 1; // Disable "Prev" button if on the first page
   next.disabled = currentPage >= totalPages; // Disable "Next" button if on the last page
 }
+
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  const timeString = `${hours}:${minutes}:${seconds}`;
+
+  document.getElementById("clock").textContent = timeString;
+}
+// Update the clock every second
+setInterval(updateClock, 1000);

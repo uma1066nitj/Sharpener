@@ -254,10 +254,19 @@
 </head>
 
 <body>
+    
     <div class="container">
         <!-- Expense Tracker Section -->
         <div class="expense-tracker">
+            <p style="font-size: 1.5rem; text-align: right;">🕒 <spam id="clock" style="font-size: 1.5rem; font-style: italic; color: #333; border: 2px solid black; padding: 5px;"><spam/></p>
+            <div id="user-info" style="text-align: center;">
+                <p style="color: #3eba26; font-weight: bold;">Hello <span id="username"
+                        style="font-size: 1.5rem; font-style: italic;text-decoration: underline;"></span>, welcome back to your Expense Tracker!
+                </p>
+
+            </div>
             <h1>Expense Tracker</h1>
+            
             <form onsubmit="addNewExpense(event)">
                 <div class="form-group">
                     <label for="expenseamount">Expense Amount:</label>

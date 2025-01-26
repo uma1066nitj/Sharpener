@@ -25,13 +25,11 @@ exports.registerUser = async (req, res, next) => {
   } catch (err) {
     await t.rollback(); // Rollback the transaction in case of an error
     console.error("Unable to create new user:", err.message);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Unable to create new user",
-        error: err,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Unable to create new user",
+      error: err,
+    });
   }
 };
 
@@ -61,8 +59,10 @@ exports.loginUser = async (req, res, next) => {
 
     // Generate JWT token
     const token = generateAccessToken(user.id);
+    // const username = use
     res.status(200).json({
       token,
+      username: user.name,
       ispremiumuser: user.ispremiumuser,
       success: true,
       message: "Successfully Logged In",
