@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 const URLTOBACKEND = 'http://localhost:3000/';
 
 function downloadReport() {
@@ -46,4 +46,3 @@ function downloadReport() {
             showError(err)
         });
 }
->>>>>>> 35b81552ba496fa61215ae640bdbac5e6dc1aa58
