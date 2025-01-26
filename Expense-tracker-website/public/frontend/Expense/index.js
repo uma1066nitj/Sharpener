@@ -28,18 +28,7 @@ function addNewExpense(e) {
     })
     .then((response) => {
       if (response.status === 201) {
-        totalCount++;
-        const limit = parseInt(setLimitDropdown.value);
-        // addNewExpensetoUI(response.data.expense);
-        const currentPageTotal = currentPage * limit;
-        if (currentPageTotal < totalCount) {
-          // Add to current UI only if it fits within the current page
-          addNewExpensetoUI(response.data.expense);
-        } else {
-          // Go to the next page if current page exceeds the limit
-          currentPage++;
-          getExpenses(currentPage, limit);
-        }
+        addNewExpensetoUI(response.data.expense);
         updatedPagination(currentPage, limit);
         updateButtonsState(currentPage, limit);
         form.reset();
