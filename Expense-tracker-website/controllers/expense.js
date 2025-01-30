@@ -208,7 +208,7 @@ exports.downloadExpense = async (req, res, next) => {
       (sum, expense) => sum + expense,
       0
     );
-
+    const username = req.user.name;
     const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -313,7 +313,7 @@ exports.downloadExpense = async (req, res, next) => {
         <body>
           <div class="container">
             <header>
-              <h1>Expense Report</h1>
+              <h1>Expense Report of ${username}</h1>
               <p>Detailed view of your expenses</p>
             </header>
 
